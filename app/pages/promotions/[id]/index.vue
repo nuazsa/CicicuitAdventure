@@ -1,6 +1,6 @@
 <template>
   <!-- Header -->
-  <MobileHeaderDefault title="Promo Menarik" back=true />
+  <MobileHeaderDefault title="Promo Menarik" backTo="/promotions" />
 
   <!-- Image Section -->
   <div class="relative w-full h-[280px] overflow-hidden bg-gray-900">

@@ -71,7 +71,7 @@
 
   <!-- Navigation Menu -->
   <div class="grid grid-cols-4 gap-4 px-5 mt-4">
-    <div v-for="menu in menus" :key="menu.title" class="flex flex-col items-center gap-2 cursor-pointer group">
+    <div v-for="menu in menus" :key="menu.title" @click="() => $router.push(menu.path)" class="flex flex-col items-center gap-2 cursor-pointer group">
       <div
         class="w-14 h-14 bg-gray-200/80 rounded-full flex items-center justify-center text-[#145C34] group-hover:bg-gray-200 transition">
         <i :class="menu.icon" class="text-lg"></i>
@@ -154,10 +154,10 @@ const isRegistered = ref(false)
 
 // Data Menu Kategori 
 const menus = [
-  { title: 'Porter', icon: 'fa-solid fa-person-hiking' },
-  { title: 'Guide', icon: 'fa-regular fa-compass' },
-  { title: 'Open Trip', icon: 'fa-solid fa-users' },
-  { title: 'Private Trip', icon: 'fa-solid fa-van-shuttle' }
+  { title: 'Porter', icon: 'fa-solid fa-person-hiking', path: '/porter' },
+  { title: 'Guide', icon: 'fa-regular fa-compass', path: '/guide' },
+  { title: 'Open Trip', icon: 'fa-solid fa-users', path: '/open-trip' },
+  { title: 'Private Trip', icon: 'fa-solid fa-van-shuttle', path: '/private-trip' }
 ]
 
 // Data Rekomendasi Trip & Layanan
