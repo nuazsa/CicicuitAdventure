@@ -10,9 +10,10 @@
     <h1 class="text-lg font-extrabold text-[#114226]">{{ title }}</h1>
 
     <!-- Search Button -->
-    <button class="text-gray-600 hover:bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center transition">
+    <button v-if="!hideSearch" class="text-gray-600 hover:bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center transition">
       <i class="fa-solid fa-magnifying-glass text-lg"></i>
     </button>
+    <button v-else="hideSearch" class="w-8 h-8" />
   </div>
 </template>
 
@@ -25,6 +26,10 @@ defineProps({
   backTo: {
     type: String,
     default: ''
+  },
+  hideSearch: {
+    type: Boolean,
+    default: false
   }
 })
 
