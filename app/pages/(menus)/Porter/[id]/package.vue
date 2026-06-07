@@ -4,7 +4,6 @@
 
   <!-- Package Details -->
   <div class="px-5 flex flex-col gap-4 mt-2">
-    
     <!-- Package Info -->
     <div class="bg-white rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
       <h2 class="text-lg font-bold text-gray-900 leading-tight mb-3" v-html="configData.package.titleFormatted"></h2>
@@ -37,7 +36,7 @@
         <p class="text-[10px] text-gray-500 leading-relaxed">Sesuaikan dengan total berat<br/>logistik kelompokmu (Saran: 1<br/>porter untuk 20kg).</p>
       </div>
       
-      <div class="flex items-center justify-between bg-[#F4F6F5] border border-gray-200 rounded-full px-1 py-1 w-[88px]">
+      <div class="flex items-center justify-between bg-[#F4F6F5] border border-gray-200 rounded-full px-1 py-1 w-[88px] shrink-0">
         <button @click="decrementPorter" class="w-7 h-7 flex items-center justify-center text-[#145C34] hover:bg-gray-200 rounded-full transition">
           <i class="fa-solid fa-minus text-xs"></i>
         </button>
@@ -48,7 +47,55 @@
       </div>
     </div>
 
-    <!-- Additional Services   -->
+    <!-- Meeting Point -->
+    <div class="bg-white rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
+      <h3 class="text-[13px] font-bold text-gray-900 mb-1">Titik Kumpul (Meeting Point)</h3>
+      <p class="text-[10px] text-gray-500 leading-relaxed mb-3">Tentukan lokasi pertemuan dengan tim porter.</p>
+      
+      <div class="relative">
+        <div v-if="isDropdownOpen" @click="isDropdownOpen = false" class="fixed inset-0 z-40"></div>
+
+        <div 
+          @click="isDropdownOpen = !isDropdownOpen"
+          class="relative z-50 w-full flex items-center justify-between bg-white border cursor-pointer text-gray-800 text-[12px] font-medium rounded-xl px-4 py-3.5 transition-all duration-200"
+          :class="isDropdownOpen ? 'border-[#145C34] ring-1 ring-[#145C34]' : 'border-gray-200 hover:border-gray-300'"
+        >
+          <span class="truncate pr-4 flex items-center gap-1.5">
+            {{ selectedMeetingPointData?.name }} 
+            <span v-if="selectedMeetingPointData?.price > 0" class="text-gray-500 font-normal whitespace-nowrap">(+ {{ formatRupiah(selectedMeetingPointData.price) }})</span>
+            <span v-else class="text-[#145C34] font-normal whitespace-nowrap">(Gratis)</span>
+          </span>
+          <i class="fa-solid fa-chevron-down text-gray-400 text-[10px] transition-transform duration-300" :class="{ 'rotate-180': isDropdownOpen }"></i>
+        </div>
+
+        <transition name="dropdown-fade">
+          <div v-if="isDropdownOpen" class="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] overflow-hidden">
+            <ul class="py-1.5 max-h-56 overflow-auto scrollbar-hide">
+              <li 
+                v-for="mp in configData.meetingPoints" 
+                :key="mp.id"
+                @click="handleSelectMeetingPoint(mp.id)"
+                class="px-4 py-3 text-[12px] cursor-pointer transition-colors flex justify-between items-center group"
+                :class="selectedMeetingPointId === mp.id ? 'bg-[#E8F5E9] text-[#145C34] font-bold' : 'text-gray-700 hover:bg-gray-50'"
+              >
+                <span class="flex items-center gap-1.5">
+                  {{ mp.name }} 
+                  <span v-if="mp.price > 0" class="font-normal" :class="selectedMeetingPointId === mp.id ? 'text-[#145C34]/70' : 'text-gray-500'">
+                    (+ {{ formatRupiah(mp.price) }})
+                  </span>
+                  <span v-else class="font-normal text-[#145C34]">
+                    (Gratis)
+                  </span>
+                </span>
+                <i v-if="selectedMeetingPointId === mp.id" class="fa-solid fa-check text-[#145C34]"></i>
+              </li>
+            </ul>
+          </div>
+        </transition>
+      </div>
+    </div>
+
+    <!-- Additional Services -->
     <div class="mt-2">
       <h3 class="text-[15px] font-bold text-gray-900 mb-0.5">Layanan Tambahan (Opsional)</h3>
       <p class="text-[12px] text-gray-500 mb-3">Sesuaikan kebutuhan pendakianmu.</p>
@@ -67,7 +114,7 @@
             <p class="text-[10px] text-[#F58220] mt-0.5">+ {{ formatRupiah(addon.price) }} / {{ addon.priceUnit }}</p>
           </div>
           
-          <div v-if="addon.type === 'counter'" class="flex items-center justify-between bg-[#F4F6F5] border border-gray-200 rounded-full px-1 py-0.5 w-20">
+          <div v-if="addon.type === 'counter'" class="flex items-center justify-between bg-[#F4F6F5] border border-gray-200 rounded-full px-1 py-0.5 w-20 shrink-0">
             <button @click.stop="decrementAddon(addon)" class="w-6 h-6 flex items-center justify-center text-[#145C34] rounded-full hover:bg-gray-200 transition">
               <i class="fa-solid fa-minus text-[10px]"></i>
             </button>
@@ -77,13 +124,12 @@
             </button>
           </div>
 
-          <div v-else-if="addon.type === 'checkbox'" class="pr-1">
+          <div v-else-if="addon.type === 'checkbox'" class="pr-1 shrink-0">
             <div class="w-5 h-5 rounded border flex items-center justify-center transition-colors duration-200"
                   :class="addon.value ? 'bg-[#145C34] border-[#145C34]' : 'bg-white border-gray-300'">
               <i v-if="addon.value" class="fa-solid fa-check text-white text-[10px]"></i>
             </div>
           </div>
-
         </div>
 
       </div>
@@ -91,12 +137,13 @@
 
     <!-- Note -->
     <div class="bg-[#FFF8F0] border border-[#FFE8D1] rounded-xl p-3 flex gap-3 items-start mt-2">
-      <i class="fa-solid fa-circle-info text-[#B45309] mt-0.5 text-sm"></i>
+      <i class="fa-solid fa-circle-info text-[#B45309] mt-0.5 text-sm shrink-0"></i>
       <p class="text-[11px] text-[#92400E] leading-relaxed" v-html="configData.noteText"></p>
     </div>
+
   </div>
 
-  <!-- Fixed Bottom Bar -->
+  <!-- Fixed Bottom Action Bar -->
   <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-100 p-4 flex justify-between items-center z-50">
     <div>
       <p class="text-[10px] text-gray-500 font-medium mb-0.5">Total Harga</p>
@@ -126,6 +173,12 @@ const configData = ref({
       'Memasak 3x sehari'
     ]
   },
+  meetingPoints: [
+    { id: 'basecamp', name: 'Basecamp Sembalun', price: 0 },
+    { id: 'bandara', name: 'Bandara Internasional Lombok', price: 250000 },
+    { id: 'mataram', name: 'Pusat Kota Mataram', price: 150000 },
+    { id: 'pelabuhan', name: 'Pelabuhan Bangsal', price: 200000 }
+  ],
   addons: [
     {
       id: 'localGuide',
@@ -133,7 +186,7 @@ const configData = ref({
       price: 300000,
       priceUnit: 'hari',
       type: 'counter',
-      value: 0 // Inisialisasi awal jumlah
+      value: 0 
     },
     {
       id: 'sleepingBag',
@@ -152,11 +205,23 @@ const configData = ref({
       value: 0
     }
   ],
-  noteText: 'Catatan: Harga belum termasuk tiket masuk<br/>Taman Nasional (Simaksi).'
+  noteText: 'Catatan: Harga sudah termasuk tiket masuk Taman Nasional (Simaksi).'
 })
 
 // --- State Variables ---
 const porterCount = ref(1)
+const isDropdownOpen = ref(false)
+const selectedMeetingPointId = ref('basecamp') 
+
+// --- Functions for Custom Dropdown ---
+const selectedMeetingPointData = computed(() => {
+  return configData.value.meetingPoints.find(mp => mp.id === selectedMeetingPointId.value)
+})
+
+const handleSelectMeetingPoint = (id) => {
+  selectedMeetingPointId.value = id
+  isDropdownOpen.value = false 
+}
 
 // --- Increment / Decrement Functions for Main Porter ---
 const incrementPorter = () => porterCount.value++
@@ -182,14 +247,18 @@ const totalPrice = computed(() => {
   let total = 0
   const duration = configData.value.package.durationDays
   
-  // Base Price: Package Price * Porter Count
+  // 1. Base Price: Package Price * Porter Count
   total += configData.value.package.basePrice * porterCount.value
   
-  // Calculate Addons dynamically
-  configData.value.addons.forEach(addon => {
-    // Tentukan multiplier berdasarkan priceUnit (jika 'hari', kali durasi hari)
-    const multiplier = addon.priceUnit === 'hari' ? duration : 1
+  // 2. Add Meeting Point cost
+  const selectedMp = configData.value.meetingPoints.find(mp => mp.id === selectedMeetingPointId.value)
+  if (selectedMp) {
+    total += selectedMp.price
+  }
 
+  // 3. Calculate Addons dynamically
+  configData.value.addons.forEach(addon => {
+    const multiplier = addon.priceUnit === 'hari' ? duration : 1
     if (addon.type === 'counter' && addon.value > 0) {
       total += (addon.price * addon.value) * multiplier
     } else if (addon.type === 'checkbox' && addon.value === true) {
@@ -209,3 +278,25 @@ const formatRupiah = (number) => {
   }).format(number)
 }
 </script>
+
+<style scoped>
+/* Transisi untuk Custom Dropdown */
+.dropdown-fade-enter-active,
+.dropdown-fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+
+/* Sembunyikan scrollbar di dalam menu dropdown */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</style>

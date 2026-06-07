@@ -15,7 +15,7 @@
         </button>
       </div>
 
-      <div class="px-4 py-4 flex justify-between items-center">
+      <div class="px-4 py-4 bg-white flex justify-between items-center">
         <div>
           <h3 class="text-[15px] font-bold text-gray-800">Jumlah Porter</h3>
           <p class="text-[10px] text-gray-500 mt-0.5">(Saran: 1 porter / 20kg logistik)</p>
