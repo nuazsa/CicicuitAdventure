@@ -26,15 +26,15 @@
         </div>
         
         <div class="w-2/3 h-full bg-gray-200 relative group cursor-pointer">
-          <img :src="porter.photos[0]" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Foto Utama Porter">
+          <NuxtImg :src="porter.photos[0]" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Foto Utama Porter" format="webp" loading="lazy" />
         </div>
         
         <div class="w-1/3 h-full flex flex-col gap-1 cursor-pointer">
           <div class="h-1/2 bg-gray-200 relative group overflow-hidden">
-            <img :src="porter.photos[1]" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="Foto Tambahan 1">
+            <NuxtImg :src="porter.photos[1]" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="Foto Tambahan 1" format="webp" loading="lazy" />
           </div>
           <div class="h-1/2 bg-gray-200 relative group overflow-hidden">
-            <img :src="porter.photos[2]" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="Foto Tambahan 2">
+            <NuxtImg :src="porter.photos[2]" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="Foto Tambahan 2" format="webp" loading="lazy" />
             <div v-if="porter.remainingPhotos > 0" class="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-sm font-bold backdrop-blur-[1px]">
               +{{ porter.remainingPhotos }}
             </div>
@@ -92,6 +92,7 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 
 // State untuk Kategori Aktif
 const mountainList = ['Semua Gunung', 'Gunung Rinjani', 'Gunung Semeru',   'Gunung Prau', 'Private Trip']

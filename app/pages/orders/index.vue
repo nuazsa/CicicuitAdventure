@@ -19,7 +19,13 @@
     <div v-for="order in filteredOrders" :key="order.id" class="bg-white rounded-2xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] border border-gray-50">
       
       <div class="flex gap-4">
-        <img :src="order.image" :alt="order.title" class="w-20 h-20 rounded-xl object-cover border border-gray-100" />
+        <NuxtImg 
+          :src="order.image" 
+          :alt="order.title" 
+          class="w-20 h-20 rounded-xl object-cover border border-gray-100" 
+          format="webp"
+          loading="lazy"
+        />
         
         <div class="flex flex-col justify-center">
           <h3 class="font-bold text-gray-800 text-[14px] leading-tight">{{ order.title }}</h3>

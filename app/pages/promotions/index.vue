@@ -19,7 +19,13 @@
   <div class="px-5 flex flex-col gap-5 mt-2">
     <!-- Promo Cards -->
     <div v-for="promo in promos" :key="promo.id" @click="handlePromoClick(promo)" class="relative w-full h-[220px] rounded-3xl overflow-hidden shadow-md group cursor-pointer">
-      <img :src="promo.image" :alt="promo.title" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+      <NuxtImg 
+        :src="promo.image" 
+        :alt="promo.title" 
+        class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-500"
+        format="webp"
+        loading="lazy"
+      />
       
       <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10"></div>
       

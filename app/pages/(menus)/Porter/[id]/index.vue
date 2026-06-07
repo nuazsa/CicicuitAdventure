@@ -4,7 +4,13 @@
 
   <!-- Hero Banner -->
   <div class="relative h-[320px] w-full">
-    <img :src="porterDetail.heroImage" :alt="porterDetail.title" class="w-full h-full object-cover" />
+    <NuxtImg 
+      :src="porterDetail.heroImage" 
+      :alt="porterDetail.title" 
+      class="w-full h-full object-cover" 
+      format="webp"
+      preload
+    />
     
     <div class="absolute bottom-10 right-5 z-10">
       <button class="bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-full text-[11px] font-bold flex items-center gap-2 shadow-sm hover:bg-white transition">
@@ -66,7 +72,13 @@
       
       <div v-for="pkg in porterDetail.packages" :key="pkg.id" class="bg-white rounded-2xl overflow-hidden shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] border border-gray-100">
         <div class="relative h-36 w-full">
-          <img :src="pkg.image" :alt="pkg.title" class="w-full h-full object-cover">
+          <NuxtImg 
+            :src="pkg.image" 
+            :alt="pkg.title" 
+            class="w-full h-full object-cover"
+            format="webp"
+            loading="lazy"
+          />
           <div v-if="pkg.discountLabel" class="absolute top-2 left-2 bg-[#C62828] text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">
             {{ pkg.discountLabel }}
           </div>

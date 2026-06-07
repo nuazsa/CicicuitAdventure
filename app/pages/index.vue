@@ -123,8 +123,13 @@
       <div v-for="rec in Recomendations" :key="rec.title"
         class="min-w-[180px] bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer group hover:shadow-md transition">
         <div class="relative">
-          <img :src="rec.image" :alt="rec.title"
-            class="w-full h-32 object-cover group-hover:scale-105 transition duration-300" />
+          <NuxtImg 
+            :src="rec.image" 
+            :alt="rec.title"
+            sizes="sm:100vw md:50vw lg:300px"
+            loading="lazy"
+            class="w-full h-32 object-cover group-hover:scale-105 transition duration-300" 
+          />
           <div class="absolute top-2 right-2 bg-[#C62828] text-white text-[10px] font-bold px-2 py-0.5 rounded">
             {{ rec.discount ? `${rec.discount}% OFF` : '' }}
           </div>
