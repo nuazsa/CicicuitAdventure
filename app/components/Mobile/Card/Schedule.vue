@@ -142,6 +142,7 @@ import { ref, computed } from 'vue'
 
 // --- General State ---
 const porterCount = ref(1)
+const scrollPosition = ref(0)
 
 const incrementPorter = () => porterCount.value++
 const decrementPorter = () => {
@@ -228,12 +229,37 @@ const formattedEndDate = computed(() => {
 // --- Calendar Functions ---
 const openCalendarModal = () => {
 	isModalOpen.value = true
-	if (typeof document !== 'undefined') document.body.style.overflow = 'hidden'
+
+	if (typeof document !== 'undefined') {
+    // 1. Simpan posisi scroll pengguna saat ini
+    scrollPosition.value = window.scrollY
+    
+    // 2. Kunci body dengan position fixed (Jurus ampuh untuk Safari)
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollPosition.value}px`
+    document.body.style.width = '100%'
+    
+    // 3. Tetap gunakan overflow hidden untuk browser selain Safari
+    document.body.style.overflow = 'hidden' 
+  }
 }
 
 const closeCalendarModal = () => {
 	isModalOpen.value = false
-	if (typeof document !== 'undefined') document.body.style.overflow = ''
+	
+	if (typeof document !== 'undefined') {
+    // 1. Hapus semua kuncian style
+    document.body.style.position = ''
+    document.body.style.top = ''
+    document.body.style.width = ''
+    document.body.style.overflow = ''
+    
+    // 2. Kembalikan layar pengguna ke posisi scroll semula secara instan
+    window.scrollTo({
+      top: scrollPosition.value,
+      behavior: 'instant' // Gunakan instant agar tidak ada animasi scroll yang aneh
+    })
+  }
 }
 
 const prevMonth = () => {
