@@ -18,38 +18,19 @@
     
     <!-- Porter Info -->
     <div>
-      <h1 class="text-[22px] font-bold text-gray-900 leading-tight mb-2" v-html="porterDetail.titleFormatted"></h1>
+      <h1 class="text-[22px] font-bold text-gray-900 leading-tight mb-2">{{ porterDetail.title }}</h1>
       <p class="text-[13px] text-gray-600 flex items-center gap-2">
         <i class="fa-solid fa-location-dot text-[#145C34]"></i> {{ porterDetail.location }}
       </p>
     </div>
 
     <!-- Rating -->
-    <div class="bg-white rounded-2xl p-4 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] border border-gray-100">
-      <div class="flex items-center justify-between border-b border-gray-50 pb-3 mb-3 cursor-pointer group">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-[#145C34] text-white rounded-full flex items-center justify-center font-bold text-lg">
-            {{ porterDetail.rating.score }}
-          </div>
-          <div>
-            <h3 class="text-sm font-bold text-gray-800">{{ porterDetail.rating.category }}</h3>
-            <p class="text-[11px] text-gray-500">{{ porterDetail.rating.reviewCount }} ulasan pendaki</p>
-          </div>
-        </div>
-        <i class="fa-solid fa-chevron-right text-gray-400 group-hover:text-gray-600 transition text-sm"></i>
-      </div>
-      <div class="flex items-start gap-3">
-        <div class="w-8 h-8 bg-[#F58220] text-white rounded-full flex items-center justify-center font-bold text-[10px] shrink-0 mt-1">
-          {{ porterDetail.rating.topReview.userInitial }}
-        </div>
-        <div>
-          <div class="flex text-[#F58220] text-[10px] gap-0.5 mb-1">
-            <i v-for="n in 5" :key="n" class="fa-solid fa-star"></i>
-          </div>
-          <p class="text-[12px] text-gray-700 italic leading-snug">"{{ porterDetail.rating.topReview.comment }}"</p>
-        </div>
-      </div>
-    </div>
+    <MobileCardRanting
+      :score="porterDetail.rating.score" 
+      :category="porterDetail.rating.category" 
+      :reviewCount="porterDetail.rating.reviewCount" 
+      :topReview="porterDetail.rating.topReview"
+    />
 
     <!-- Facilities & Skills -->
     <div>
@@ -68,50 +49,16 @@
     </div>
 
     <!-- Schedule -->
-    <div class="rounded-2xl overflow-hidden shadow-[0_4px_15px_-5px_rgba(0,0,0,0.05)] border border-gray-100">
-      <div class="bg-[#145C34] px-4 py-3.5 flex justify-between items-center">
-        <div class="flex items-center gap-3 text-white">
-          <i class="fa-regular fa-calendar-days text-xl opacity-90"></i>
-          <div>
-            <p class="text-sm font-bold">{{ porterDetail.schedule.dateRange }}</p>
-            <p class="text-[11px] opacity-80">{{ porterDetail.schedule.duration }}</p>
-          </div>
-        </div>
-        <button class="bg-[#F58220] text-white px-4 py-1.5 rounded-full text-xs font-bold hover:bg-orange-600 transition shadow-sm">
-          Ubah
-        </button>
-      </div>
-      <div class="bg-white px-4 py-4 flex justify-between items-center">
-        <div>
-          <h3 class="text-[15px] font-bold text-gray-800">Jumlah Porter</h3>
-          <p class="text-[10px] text-gray-500 mt-0.5">(Saran: 1 porter / 20kg logistik)</p>
-        </div>
-        <div class="flex items-center gap-3">
-          <button @click="decrementPorter" class="w-7 h-7 bg-[#145C34] text-white rounded-full flex items-center justify-center hover:bg-green-800 transition">
-            <i class="fa-solid fa-minus text-xs"></i>
-          </button>
-          <span class="text-lg font-bold text-gray-800 w-4 text-center">{{ porterCount }}</span>
-          <button @click="incrementPorter" class="w-7 h-7 bg-[#145C34] text-white rounded-full flex items-center justify-center hover:bg-green-800 transition">
-            <i class="fa-solid fa-plus text-xs"></i>
-          </button>
-        </div>
-      </div>
-    </div>
+    <MobileCardSchedule 
+      :dateRange="porterDetail.schedule.dateRange"
+      :duration="porterDetail.schedule.duration"
+    />
 
     <!-- Hiking Information -->
-    <div class="bg-white rounded-xl p-4 border border-gray-200">
-      <h3 class="text-[11px] font-bold text-gray-500 mb-3 tracking-wider uppercase">Informasi Pendakian</h3>
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <p class="text-[10px] text-gray-500 mb-1">Meeting Point</p>
-          <p class="text-[13px] font-medium text-gray-800 leading-snug" v-html="porterDetail.hikingInfo.meetingPoint"></p>
-        </div>
-        <div>
-          <p class="text-[10px] text-gray-500 mb-1">Waktu Kumpul</p>
-          <p class="text-[13px] font-medium text-gray-800 leading-snug">{{ porterDetail.hikingInfo.meetingTime }}</p>
-        </div>
-      </div>
-    </div>
+    <MobileCardInformation 
+      :meetingPoint="porterDetail.hikingInfo.meetingPoint" 
+      :meetingTime="porterDetail.hikingInfo.meetingTime"
+    />
 
     <!-- Package Options -->
     <div class="flex flex-col gap-5">
@@ -155,37 +102,20 @@
     </div>
 
     <!-- Basecamp Location   -->
-    <div class="mb-6 mt-2">
-      <h2 class="text-[15px] font-bold text-gray-800 mb-3">Lokasi Basecamp</h2>
-      
-      <div class="h-44 w-full bg-gray-200 rounded-xl relative overflow-hidden border border-gray-300 shadow-sm">
-        <iframe 
-          :src="porterDetail.mapUrl" 
-          width="100%" 
-          height="100%" 
-          style="border:0;" 
-          allowfullscreen="" 
-          loading="lazy" 
-          referrerpolicy="no-referrer-when-downgrade">
-        </iframe>
-      </div>
-    </div>
+    <MobileCardMeetingPoint :mapUrl="porterDetail.mapUrl" />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-const router = useRouter()
 
-// --- State Management ---
-const porterCount = ref(1)
+const router = useRouter()
 
 // --- Data Object Mockup ---
 const porterDetail = ref({
   id: 1,
   title: 'Porter Team Rinjani Perkasa',
-  titleFormatted: 'Porter Team Rinjani<br/>Perkasa',
   heroImage:
     'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80',
   location: 'Basecamp Sembalun, Gunung Rinjani',
@@ -249,15 +179,4 @@ const porterDetail = ref({
   mapUrl:
     'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3947.452227974435!2d116.52213587464999!3d-8.357094691679832!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dcc2f796097cb0b%3A0xcb0bca9048d618f8!2sBasecamp%20Sembalun%20Trek%20Rinjani!5e0!3m2!1sen!2sid!4v1780714244868!5m2!1sen!2sid'
 })
-
-// --- Functions ---
-const incrementPorter = () => {
-  porterCount.value++
-}
-
-const decrementPorter = () => {
-  if (porterCount.value > 1) {
-    porterCount.value--
-  }
-}
 </script>
