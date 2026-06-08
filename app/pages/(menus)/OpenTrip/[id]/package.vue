@@ -1,12 +1,13 @@
 <template>
   <!-- Header -->
-  <MobileHeaderDefault :title="configData.pageTitle" :backTo="`/porter/${$route.params.id}`" />
+  <MobileHeaderDefault title="Konfigurasi Paket" :backTo="`/opentrip/${$route.params.id}`" />
 
   <!-- Package Details -->
-  <div class="px-5 flex flex-col gap-4 mt-2">
+  <div class="px-5 flex flex-col gap-4 mt-2 mb-28">
     <!-- Package Info -->
     <div class="bg-white rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
-      <h2 class="text-lg font-bold text-gray-900 leading-tight mb-3" v-html="configData.package.titleFormatted"></h2>
+      <h2 class="text-lg font-bold text-gray-900 leading-tight" v-html="configData.package.titleOfPackage"></h2>
+      <p class="text-[12px] text-gray-500 mb-3" v-html="configData.package.titleOfTrip"></p>
       
       <div class="flex flex-col gap-2 mb-4">
         <div class="flex items-start gap-2.5 text-[13px] text-gray-700">
@@ -17,10 +18,15 @@
           <i class="fa-solid fa-location-dot text-[#145C34] mt-0.5"></i>
           <span>{{ configData.package.location }}</span>
         </div>
+        <!-- Ticket Info -->
+         <div class="flex items-start gap-2.5 text-[13px] text-gray-700">
+          <i class="fa-solid fa-door-open text-[#145C34] mt-0.5"></i>
+          <span>Meeting Point: {{ configData.package.meetingPoint }}</span>
+        </div>
       </div>
 
       <div class="border-t border-gray-100 pt-3">
-        <p class="text-[12px] font-bold text-gray-800 mb-2">Fasilitas Termasuk per Porter:</p>
+        <p class="text-[12px] font-bold text-gray-800 mb-2">Fasilitas Termasuk:</p>
         <ul class="flex flex-col gap-2">
           <li v-for="(facility, index) in configData.package.includedFacilities" :key="index" class="flex items-center gap-2 text-[12px] text-gray-600">
             <i class="fa-solid fa-circle-check text-[#145C34]"></i> {{ facility }}
@@ -29,19 +35,19 @@
       </div>
     </div>
 
-    <!-- Porter Count -->
+    <!-- Participant Count -->
     <div class="bg-white rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] flex justify-between items-center">
       <div class="pr-4">
-        <h3 class="text-[13px] font-bold text-gray-900 mb-1">Jumlah Porter yang<br/>Dibutuhkan</h3>
-        <p class="text-[10px] text-gray-500 leading-relaxed">Sesuaikan dengan total berat<br/>logistik kelompokmu (Saran: 1<br/>porter untuk 20kg).</p>
+        <h3 class="text-[13px] font-bold text-gray-900 mb-1">Jumlah Peserta</h3>
+        <p class="text-[10px] text-gray-500 leading-relaxed">Tentukan berapa orang yang<br/>akan ikut dalam pemesanan ini.</p>
       </div>
       
       <div class="flex items-center justify-between bg-[#F4F6F5] border border-gray-200 rounded-full px-1 py-1 w-[88px] shrink-0">
-        <button @click="decrementPorter" class="w-7 h-7 flex items-center justify-center text-[#145C34] hover:bg-gray-200 rounded-full transition">
+        <button @click="decrementParticipant" class="w-7 h-7 flex items-center justify-center text-[#145C34] hover:bg-gray-200 rounded-full transition">
           <i class="fa-solid fa-minus text-xs"></i>
         </button>
-        <span class="text-[13px] font-bold text-gray-800 w-4 text-center">{{ porterCount }}</span>
-        <button @click="incrementPorter" class="w-7 h-7 flex items-center justify-center text-[#145C34] hover:bg-gray-200 rounded-full transition">
+        <span class="text-[13px] font-bold text-gray-800 w-4 text-center">{{ participantCount }}</span>
+        <button @click="incrementParticipant" class="w-7 h-7 flex items-center justify-center text-[#145C34] hover:bg-gray-200 rounded-full transition">
           <i class="fa-solid fa-plus text-xs"></i>
         </button>
       </div>
@@ -50,26 +56,26 @@
     <!-- Meeting Point -->
     <div class="bg-white rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
       <h3 class="text-[13px] font-bold text-gray-900 mb-1">Titik Kumpul (Meeting Point)</h3>
-      <p class="text-[10px] text-gray-500 leading-relaxed mb-3">Tentukan lokasi pertemuan dengan tim porter.</p>
+      <p class="text-[10px] text-gray-500 leading-relaxed mb-3">Pilih lokasi keberangkatan bersama rombongan.</p>
       
       <div class="relative">
         <div v-if="isDropdownOpen" @click="isDropdownOpen = false" class="fixed inset-0 z-40"></div>
 
         <div 
           @click="isDropdownOpen = !isDropdownOpen"
-          class="relative z-50 w-full flex items-center justify-between bg-white border cursor-pointer text-gray-800 text-[12px] font-medium rounded-xl px-4 py-3.5 transition-all duration-200"
+          class="relative w-full flex items-center justify-between bg-white border cursor-pointer text-gray-800 text-[12px] font-medium rounded-xl px-4 py-3.5 transition-all duration-200"
           :class="isDropdownOpen ? 'border-[#145C34] ring-1 ring-[#145C34]' : 'border-gray-200 hover:border-gray-300'"
         >
           <span class="truncate pr-4 flex items-center gap-1.5">
             {{ selectedMeetingPointData?.name }} 
             <span v-if="selectedMeetingPointData?.price > 0" class="text-gray-500 font-normal whitespace-nowrap">(+ {{ formatRupiah(selectedMeetingPointData.price) }})</span>
-            <span v-else class="text-[#145C34] font-normal whitespace-nowrap">(Gratis)</span>
+            <span v-else class="text-[#145C34] font-normal whitespace-nowrap">(Sesuai Paket)</span>
           </span>
           <i class="fa-solid fa-chevron-down text-gray-400 text-[10px] transition-transform duration-300" :class="{ 'rotate-180': isDropdownOpen }"></i>
         </div>
 
         <transition name="dropdown-fade">
-          <div v-if="isDropdownOpen" class="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] overflow-hidden">
+          <div v-if="isDropdownOpen" class="absolute w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] overflow-hidden">
             <ul class="py-1.5 max-h-56 overflow-auto scrollbar-hide">
               <li 
                 v-for="mp in configData.meetingPoints" 
@@ -84,7 +90,7 @@
                     (+ {{ formatRupiah(mp.price) }})
                   </span>
                   <span v-else class="font-normal text-[#145C34]">
-                    (Gratis)
+                    (Sesuai Paket)
                   </span>
                 </span>
                 <i v-if="selectedMeetingPointId === mp.id" class="fa-solid fa-check text-[#145C34]"></i>
@@ -98,7 +104,7 @@
     <!-- Additional Services -->
     <div class="mt-2">
       <h3 class="text-[15px] font-bold text-gray-900 mb-0.5">Layanan Tambahan (Opsional)</h3>
-      <p class="text-[12px] text-gray-500 mb-3">Sesuaikan kebutuhan pendakianmu.</p>
+      <p class="text-[12px] text-gray-500 mb-3">Sewa perlengkapan pribadi agar tidak ribet.</p>
 
       <div class="flex flex-col gap-3">
         
@@ -141,15 +147,39 @@
       <p class="text-[11px] text-[#92400E] leading-relaxed" v-html="configData.noteText"></p>
     </div>
 
+    <!-- Terms of Service -->
+    <div class="bg-white rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] flex items-start gap-3 mt-2 border border-gray-50">
+      <div class="pt-0.5 shrink-0">
+        <div 
+          @click="isTosAgreed = !isTosAgreed"
+          class="w-5 h-5 rounded border flex items-center justify-center cursor-pointer transition-colors duration-200"
+          :class="isTosAgreed ? 'bg-[#145C34] border-[#145C34]' : 'bg-white border-gray-300'"
+        >
+          <i v-if="isTosAgreed" class="fa-solid fa-check text-white text-[10px]"></i>
+        </div>
+      </div>
+      <div>
+        <p class="text-[12px] text-gray-700 leading-relaxed select-none" @click="isTosAgreed = !isTosAgreed">
+          Saya telah membaca dan menyetujui 
+          <NuxtLink :to="`/tos/${$route.params.id}`" @click.stop class="text-[#145C34] font-bold hover:underline">
+            Syarat dan Ketentuan
+          </NuxtLink> 
+          serta kebijakan privasi yang berlaku untuk perjalanan ini.
+        </p>
+      </div>
+    </div>
   </div>
 
-  <!-- Fixed Bottom Action Bar -->
-  <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-100 p-4 flex justify-between items-center z-50">
+  <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-100 p-4 flex justify-between items-center">
     <div>
       <p class="text-[10px] text-gray-500 font-medium mb-0.5">Total Harga</p>
       <p class="text-[18px] font-extrabold text-[#145C34]">{{ formatRupiah(totalPrice) }}</p>
     </div>
-    <button class="bg-[#145C34] text-white px-6 py-2.5 rounded-lg text-[13px] font-bold hover:bg-green-800 transition shadow-sm">
+    <button 
+      :disabled="!isTosAgreed"
+      class="px-6 py-2.5 rounded-lg text-[13px] font-bold transition shadow-sm"
+      :class="isTosAgreed ? 'bg-[#145C34] text-white hover:bg-green-800' : 'bg-gray-300 text-gray-500 cursor-not-allowed'"
+    >
       Lanjut Bayar
     </button>
   </div>
@@ -158,60 +188,70 @@
 <script setup>
 import { ref, computed } from 'vue'
 
-// --- Data Object Configuration ---
+// --- Data Object Configuration untuk Open Trip Gede Pangrango ---
 const configData = ref({
-  pageTitle: 'Konfigurasi Paket',
   package: {
-    titleFormatted: 'Paket Full Service<br/>(3H2M)',
-    basePrice: 750000,
-    durationDays: 3,
-    dateRange: '25 May - 27 May 2026',
-    location: 'Basecamp Sembalun, Gunung Rinjani',
+    titleOfTrip: 'Open Trip Gunung Gede Pangrango 2H1M',
+    titleOfPackage: 'Paket Jalur Cibodas (2H1M)',
+    basePrice: 395000,
+    durationDays: 2,
+    dateRange: '20 - 21 Desember 2026',
+    location: 'Bogor, Jawa Barat',
+    meetingPoint: 'Basecamp Cibodas',
     includedFacilities: [
-      'Angkut logistik maks 20kg',
-      'Bongkar pasang tenda',
-      'Memasak 3x sehari'
+      'Transport PP (Meeting Point - Basecamp)',
+      'Tiket Masuk & Asuransi (SIMAKSI)',
+      'Tenda Dome (1 Tenda untuk 4 Orang)',
+      'Makan 3x selama di gunung'
     ]
   },
   meetingPoints: [
-    { id: 'basecamp', name: 'Basecamp Sembalun', price: 0 },
-    { id: 'bandara', name: 'Bandara Internasional Lombok', price: 250000 },
-    { id: 'mataram', name: 'Pusat Kota Mataram', price: 150000 },
-    { id: 'pelabuhan', name: 'Pelabuhan Bangsal', price: 200000 }
+    { id: 'cibodas', name: 'Basecamp Cibodas', price: 0 },
+    { id: 'bogor', name: 'Stasiun Bogor', price: 100000 },
+    { id: 'door2door', name: 'Penjemputan Door-to-Door (Khusus Jakarta)', price: 150000 }
   ],
   addons: [
     {
-      id: 'localGuide',
-      title: 'Tambah 1 Guide Lokal',
-      price: 300000,
-      priceUnit: 'hari',
+      id: 'sleepingBag',
+      title: 'Sewa Sleeping Bag (SB)',
+      price: 25000,
+      priceUnit: 'pax',
       type: 'counter',
       value: 0 
     },
     {
-      id: 'sleepingBag',
-      title: 'Sewa Sleeping Bag',
-      price: 50000,
-      priceUnit: 'trip',
-      type: 'checkbox',
-      value: false
+      id: 'matras',
+      title: 'Sewa Matras Alumunium',
+      price: 15000,
+      priceUnit: 'pax',
+      type: 'counter',
+      value: 0
     },
     {
-      id: 'waterPorter',
-      title: 'Ekstra Porter Air',
-      price: 200000,
+      id: 'privateTent',
+      title: 'Upgrade Tenda Private (Hanya isi 2 org)',
+      price: 100000,
+      priceUnit: 'tenda',
+      type: 'counter',
+      value: 0
+    },
+    {
+      id: 'personalPorter',
+      title: 'Sewa Porter Pribadi (Maks 20kg)',
+      price: 350000,
       priceUnit: 'hari',
       type: 'counter',
       value: 0
     }
   ],
-  noteText: 'Catatan: Harga sudah termasuk tiket masuk Taman Nasional (Simaksi).'
+  noteText: 'Catatan: Pastikan membawa Kartu Identitas (KTP) asli pada hari-H untuk proses Simaksi. Jika tidak, pihak Taman Nasional berhak menolak.'
 })
 
 // --- State Variables ---
-const porterCount = ref(1)
+const participantCount = ref(1)
 const isDropdownOpen = ref(false)
-const selectedMeetingPointId = ref('basecamp') 
+const selectedMeetingPointId = ref('cibodas') 
+const isTosAgreed = ref(false)
 
 // --- Functions for Custom Dropdown ---
 const selectedMeetingPointData = computed(() => {
@@ -223,10 +263,10 @@ const handleSelectMeetingPoint = (id) => {
   isDropdownOpen.value = false 
 }
 
-// --- Increment / Decrement Functions for Main Porter ---
-const incrementPorter = () => porterCount.value++
-const decrementPorter = () => {
-  if (porterCount.value > 1) porterCount.value--
+// --- Increment / Decrement Functions for Participants ---
+const incrementParticipant = () => participantCount.value++
+const decrementParticipant = () => {
+  if (participantCount.value > 1) participantCount.value--
 }
 
 // --- Dynamic Functions for Looped Addons ---
@@ -247,18 +287,22 @@ const totalPrice = computed(() => {
   let total = 0
   const duration = configData.value.package.durationDays
   
-  // 1. Base Price: Package Price * Porter Count
-  total += configData.value.package.basePrice * porterCount.value
+  // 1. Harga Dasar: Harga Paket * Jumlah Peserta
+  total += configData.value.package.basePrice * participantCount.value
   
-  // 2. Add Meeting Point cost
+  // 2. Biaya Titik Kumpul (Meeting Point)
   const selectedMp = configData.value.meetingPoints.find(mp => mp.id === selectedMeetingPointId.value)
   if (selectedMp) {
-    total += selectedMp.price
+    // Jika biaya penjemputan bersifat per rombongan/pemesanan, tambahkan langsung.
+    // (Jika ingin dihitung per orang, kalikan dengan participantCount.value)
+    total += selectedMp.price 
   }
 
-  // 3. Calculate Addons dynamically
+  // 3. Kalkulasi Layanan Tambahan (Addons)
   configData.value.addons.forEach(addon => {
+    // Jika addon dihitung "per hari", kalikan durasi trip (contoh: porter pribadi)
     const multiplier = addon.priceUnit === 'hari' ? duration : 1
+    
     if (addon.type === 'counter' && addon.value > 0) {
       total += (addon.price * addon.value) * multiplier
     } else if (addon.type === 'checkbox' && addon.value === true) {

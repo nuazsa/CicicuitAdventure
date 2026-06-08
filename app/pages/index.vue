@@ -161,7 +161,7 @@ const isRegistered = ref(false)
 const menus = [
   { title: 'Porter', icon: 'fa-solid fa-person-hiking', path: '/porter' },
   { title: 'Guide', icon: 'fa-regular fa-compass', path: '/guide' },
-  { title: 'Open Trip', icon: 'fa-solid fa-users', path: '/open-trip' },
+  { title: 'Open Trip', icon: 'fa-solid fa-users', path: '/opentrip' },
   { title: 'Private Trip', icon: 'fa-solid fa-van-shuttle', path: '/private-trip' }
 ]
 
