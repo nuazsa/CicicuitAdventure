@@ -54,16 +54,19 @@
     </div>
 
     <!-- Meeting Point -->
-    <div class="bg-white rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
+    <div 
+      class="bg-white rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] relative transition-all duration-200"
+      :class="isDropdownOpen ? 'z-50' : 'z-10'"
+    >
       <h3 class="text-[13px] font-bold text-gray-900 mb-1">Titik Kumpul (Meeting Point)</h3>
       <p class="text-[10px] text-gray-500 leading-relaxed mb-3">Pilih lokasi keberangkatan bersama rombongan.</p>
       
-      <div class="relative">
+      <div class="relative w-full">
         <div v-if="isDropdownOpen" @click="isDropdownOpen = false" class="fixed inset-0 z-40"></div>
 
         <div 
           @click="isDropdownOpen = !isDropdownOpen"
-          class="relative w-full flex items-center justify-between bg-white border cursor-pointer text-gray-800 text-[12px] font-medium rounded-xl px-4 py-3.5 transition-all duration-200"
+          class="relative z-50 w-full flex items-center justify-between bg-white border cursor-pointer text-gray-800 text-[12px] font-medium rounded-xl px-4 py-3.5 transition-all duration-200"
           :class="isDropdownOpen ? 'border-[#145C34] ring-1 ring-[#145C34]' : 'border-gray-200 hover:border-gray-300'"
         >
           <span class="truncate pr-4 flex items-center gap-1.5">
@@ -75,16 +78,16 @@
         </div>
 
         <transition name="dropdown-fade">
-          <div v-if="isDropdownOpen" class="absolute w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] overflow-hidden">
+          <div v-if="isDropdownOpen" class="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] overflow-hidden">
             <ul class="py-1.5 max-h-56 overflow-auto scrollbar-hide">
               <li 
                 v-for="mp in configData.meetingPoints" 
                 :key="mp.id"
-                @click="handleSelectMeetingPoint(mp.id)"
-                class="px-4 py-3 text-[12px] cursor-pointer transition-colors flex justify-between items-center group"
+                @click.stop="handleSelectMeetingPoint(mp.id)" 
+                class="px-4 py-3 text-[12px] cursor-pointer transition-colors flex justify-between items-center group relative z-50"
                 :class="selectedMeetingPointId === mp.id ? 'bg-[#E8F5E9] text-[#145C34] font-bold' : 'text-gray-700 hover:bg-gray-50'"
               >
-                <span class="flex items-center gap-1.5">
+                <span class="flex items-center gap-1.5 pointer-events-none">
                   {{ mp.name }} 
                   <span v-if="mp.price > 0" class="font-normal" :class="selectedMeetingPointId === mp.id ? 'text-[#145C34]/70' : 'text-gray-500'">
                     (+ {{ formatRupiah(mp.price) }})
@@ -93,7 +96,7 @@
                     (Sesuai Paket)
                   </span>
                 </span>
-                <i v-if="selectedMeetingPointId === mp.id" class="fa-solid fa-check text-[#145C34]"></i>
+                <i v-if="selectedMeetingPointId === mp.id" class="fa-solid fa-check text-[#145C34] pointer-events-none"></i>
               </li>
             </ul>
           </div>

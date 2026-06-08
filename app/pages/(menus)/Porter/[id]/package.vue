@@ -1,9 +1,9 @@
 <template>
   <!-- Header -->
-  <MobileHeaderDefault :title="configData.pageTitle" :backTo="`/porter/${$route.params.id}`" />
+  <MobileHeaderDefault title="Konfigurasi Paket" :backTo="`/porter/${$route.params.id}`" />
 
   <!-- Package Details -->
-  <div class="px-5 flex flex-col gap-4 mt-2">
+  <div class="px-5 flex flex-col gap-4 mt-2 mb-28">
     <!-- Package Info -->
     <div class="bg-white rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
       <h2 class="text-lg font-bold text-gray-900 leading-tight mb-3" v-html="configData.package.titleFormatted"></h2>
@@ -48,11 +48,14 @@
     </div>
 
     <!-- Meeting Point -->
-    <div class="bg-white rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
+    <div 
+      class="bg-white rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] relative transition-all duration-200"
+      :class="isDropdownOpen ? 'z-50' : 'z-10'"
+    >
       <h3 class="text-[13px] font-bold text-gray-900 mb-1">Titik Kumpul (Meeting Point)</h3>
-      <p class="text-[10px] text-gray-500 leading-relaxed mb-3">Tentukan lokasi pertemuan dengan tim porter.</p>
+      <p class="text-[10px] text-gray-500 leading-relaxed mb-3">Pilih lokasi keberangkatan bersama rombongan.</p>
       
-      <div class="relative">
+      <div class="relative w-full">
         <div v-if="isDropdownOpen" @click="isDropdownOpen = false" class="fixed inset-0 z-40"></div>
 
         <div 
@@ -63,7 +66,7 @@
           <span class="truncate pr-4 flex items-center gap-1.5">
             {{ selectedMeetingPointData?.name }} 
             <span v-if="selectedMeetingPointData?.price > 0" class="text-gray-500 font-normal whitespace-nowrap">(+ {{ formatRupiah(selectedMeetingPointData.price) }})</span>
-            <span v-else class="text-[#145C34] font-normal whitespace-nowrap">(Gratis)</span>
+            <span v-else class="text-[#145C34] font-normal whitespace-nowrap">(Sesuai Paket)</span>
           </span>
           <i class="fa-solid fa-chevron-down text-gray-400 text-[10px] transition-transform duration-300" :class="{ 'rotate-180': isDropdownOpen }"></i>
         </div>
@@ -74,20 +77,20 @@
               <li 
                 v-for="mp in configData.meetingPoints" 
                 :key="mp.id"
-                @click="handleSelectMeetingPoint(mp.id)"
-                class="px-4 py-3 text-[12px] cursor-pointer transition-colors flex justify-between items-center group"
+                @click.stop="handleSelectMeetingPoint(mp.id)" 
+                class="px-4 py-3 text-[12px] cursor-pointer transition-colors flex justify-between items-center group relative z-50"
                 :class="selectedMeetingPointId === mp.id ? 'bg-[#E8F5E9] text-[#145C34] font-bold' : 'text-gray-700 hover:bg-gray-50'"
               >
-                <span class="flex items-center gap-1.5">
+                <span class="flex items-center gap-1.5 pointer-events-none">
                   {{ mp.name }} 
                   <span v-if="mp.price > 0" class="font-normal" :class="selectedMeetingPointId === mp.id ? 'text-[#145C34]/70' : 'text-gray-500'">
                     (+ {{ formatRupiah(mp.price) }})
                   </span>
                   <span v-else class="font-normal text-[#145C34]">
-                    (Gratis)
+                    (Sesuai Paket)
                   </span>
                 </span>
-                <i v-if="selectedMeetingPointId === mp.id" class="fa-solid fa-check text-[#145C34]"></i>
+                <i v-if="selectedMeetingPointId === mp.id" class="fa-solid fa-check text-[#145C34] pointer-events-none"></i>
               </li>
             </ul>
           </div>
@@ -160,7 +163,6 @@ import { ref, computed } from 'vue'
 
 // --- Data Object Configuration ---
 const configData = ref({
-  pageTitle: 'Konfigurasi Paket',
   package: {
     titleFormatted: 'Paket Full Service<br/>(3H2M)',
     basePrice: 750000,
