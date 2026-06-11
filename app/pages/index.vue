@@ -42,7 +42,7 @@
           </div>
         </div>
         <!-- Tambahkan event @click di sini -->
-        <button @click="handleRegister"
+        <button @click="$router.push('/auth/signup')"
           class="bg-[#145C34] text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-green-800 transition">
           Daftar
         </button>
@@ -186,6 +186,7 @@ const Recomendations = [
     discount: null
   }
 ]
+
 
 // --- Fungsi Drag to Scroll ---
 const isDown = ref(false)
