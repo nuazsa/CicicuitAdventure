@@ -2,7 +2,12 @@
   <div class="bg-[#145C34] pt-12 pb-20 px-5 rounded-b-[2rem] relative" />
 
   <div class="px-5 -mt-16 relative z-10">
-    <div class="bg-white rounded-3xl p-5 shadow-sm flex flex-col items-center text-center">
+    <div class="bg-white rounded-3xl p-5 shadow-sm flex flex-col items-center text-center relative">
+      
+      <NuxtLink to="/profile/setting" class="absolute top-4 right-5 text-gray-400 hover:text-[#145C34] transition p-1">
+        <i class="fa-solid fa-gear text-[20px]"></i>
+      </NuxtLink>
+
       <div class="w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden -mt-12 bg-gray-200 relative">
         <NuxtImg
           :src="profileData.user.image"
@@ -39,7 +44,7 @@
 
   <div class="px-5 mt-6">
     <div class="grid grid-cols-4 gap-3">
-      <div v-for="menu in mainMenus" :key="menu.id"
+      <div v-for="menu in mainMenus" :key="menu.id" @click="$router.push(menu.path)" 
         class="bg-white rounded-2xl p-3 flex flex-col items-center text-center shadow-sm hover:shadow-md transition cursor-pointer relative group">
         <div v-if="menu.badge"
           class="absolute -top-1 -right-1 bg-[#EF6C00] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full z-10 border border-white">
@@ -191,8 +196,8 @@ const mainMenus = [
   { id: 2, label: 'Refund Trip', icon: 'fa-solid fa-money-bill-transfer', badge: 2 },
   { id: 3, label: 'Voucher Saya', icon: 'fa-solid fa-ticket-simple' },
   { id: 4, label: 'Metode Bayar', icon: 'fa-solid fa-money-check-dollar' },
-  { id: 5, label: 'Pesanan Saya', icon: 'fa-solid fa-file-invoice' },
-  { id: 6, label: 'Keamanan Akun', icon: 'fa-solid fa-shield-halved' },
+  { id: 5, label: 'Pesanan Saya', icon: 'fa-solid fa-file-invoice', path: '/orders' },
+  { id: 6, label: 'Pengaturan Akun', icon: 'fa-solid fa-shield-halved', path: '/profile/setting' },
   { id: 7, label: 'Ulasan Trip Saya', icon: 'fa-solid fa-pen-to-square' },
   { id: 8, label: 'Referensi Teman', icon: 'fa-solid fa-user-group' }
 ]
