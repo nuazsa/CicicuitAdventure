@@ -1,4 +1,5 @@
 <template>
+  <MobileHeaderDefault title="Masuk" backTo="" hideSearch />
   <div class="p-6">
     <!-- Header -->
     <div class="flex flex-col items-center text-center mt-4 mb-6">

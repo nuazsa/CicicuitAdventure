@@ -1,5 +1,7 @@
 <template>
+  <MobileHeaderDefault title="Daftar" backTo="" hideSearch />
   <div class="p-6">
+
     <!-- Header -->
     <div class="flex flex-col items-center text-center mt-4 mb-6">
       <NuxtImg src="/logo.svg" alt="Logo Cicitcuit Adventure" class="w-35 h-auto object-contain mb-3" format="webp" />
