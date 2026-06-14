@@ -149,8 +149,11 @@
 <script setup>
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
+import authCustomer from '~/middleware/auth-customer'
 
-const route = useRoute()
+definePageMeta({
+  middleware: authCustomer
+})
 
 // --- Data Object Configuration ---
 const profileData = ref({

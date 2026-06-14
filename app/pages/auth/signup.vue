@@ -46,6 +46,7 @@
           <input 
             v-model="formRegister.password"
             :type="showPassword ? 'text' : 'password'" 
+            minlength="8" 
             placeholder="Minimal 8 karakter"
             required
             class="w-full bg-white border border-gray-200 text-[13px] rounded-xl pl-11 pr-11 py-3.5 focus:outline-none focus:border-[#145C34] focus:ring-1 focus:ring-[#145C34] transition-colors"
@@ -63,6 +64,7 @@
           <input 
             v-model="formRegister.confirmPassword"
             :type="showConfirmPassword ? 'text' : 'password'" 
+            minlength="8"
             placeholder="Ulangi kata sandi Anda"
             required
             class="w-full bg-white border border-gray-200 text-[13px] rounded-xl pl-11 pr-11 py-3.5 focus:outline-none focus:border-[#145C34] focus:ring-1 focus:ring-[#145C34] transition-colors"
@@ -75,9 +77,11 @@
 
       <button 
         type="submit" 
-        class="w-full bg-[#145C34] text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-green-900/10 hover:bg-green-800 transition active:scale-[0.99] mt-2 block"
+        :disabled="isLoading"
+        class="w-full py-3.5 rounded-xl font-bold text-[13px] transition-all duration-300 shadow-sm flex justify-center items-center gap-2"
+        :class="(!isLoading) ? 'bg-[#145C34] text-white hover:bg-green-800 shadow-md shadow-green-900/20' : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
       >
-        Daftar Akun
+        {{ isLoading ? 'Memproses...': 'Daftar Akun'}}
       </button>
 
       <!-- Divider -->
@@ -138,10 +142,20 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import authGuest from '~/middleware/auth-guest'
+
+definePageMeta({
+  middleware: authGuest
+})
+
+const router = useRouter()
+const config = useRuntimeConfig()
 
 // --- State Keamanan Form (Sembunyi/Lihat Password) ---
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
+const isLoading = ref(false)
 
 // --- Data Object Form ---
 const formRegister = ref({
@@ -152,15 +166,42 @@ const formRegister = ref({
 })
 
 // --- Fungsi Submit Registrasi ---
-const handleRegister = () => {
+const handleRegister = async () => {
   // Validasi kecocokan sandi
   if (formRegister.value.password !== formRegister.value.confirmPassword) {
     alert('Kata sandi dan verifikasi kata sandi tidak cocok!')
     return
   }
 
-  console.log('Data pendaftaran dikirim:', formRegister.value)
-  // Tempatkan logika integrasi API pendaftaran Anda di sini
+  isLoading.value = true
+
+  try {
+    const payload = {
+      fullName: formRegister.value.fullName,
+      email: formRegister.value.email,
+      password: formRegister.value.password
+    }
+
+    await $fetch(`${config.public.apiBaseUrl}/auth/signup`, {
+      method: 'POST',
+      body: payload
+    })
+
+    // Arahkan ke halaman verifikasi OTP
+    router.push({
+      path: '/auth/email-verify',
+      query: {
+        fullname: formRegister.value.fullName,
+        email: formRegister.value.email
+      }
+    })
+  } catch (error) {
+    console.error('Pendaftaran gagal:', error)
+    const errorMessage = error.data?.message || 'Terjadi kesalahan pada server. Silakan coba lagi.'
+    alert(`Gagal: ${errorMessage}`)
+  } finally {
+    isLoading.value = false
+  }
 }
 
 // --- Fungsi Login Pihak Ketiga (OAuth) ---
@@ -169,10 +210,3 @@ const handleOAuth = (platform) => {
   // Hubungkan dengan provider OAuth (Supabase, Firebase, Auth0, dll.)
 }
 </script>
-
-<style scoped>
-/* Menghilangkan efek biru bawaan browser smartphone saat elemen interaktif diklik */
-button, input, a {
-  -webkit-tap-highlight-color: transparent;
-}
-</style>

@@ -12,7 +12,7 @@
         <p class="text-[13px] text-gray-500 leading-relaxed max-w-[280px]">
           Kami telah mengirimkan 6 digit kode verifikasi ke email:
           <br/>
-          <strong class="text-gray-800 mt-1 inline-block">andi.pendaki@gmail.com</strong>
+          <strong class="text-gray-800 mt-1 inline-block">{{ userEmail }}</strong>
         </p>
       </div>
 
@@ -38,16 +38,16 @@
 
         <button 
           type="submit" 
-          :disabled="!isOtpComplete"
+          :disabled="!isOtpComplete || isLoading"
           class="w-full py-3.5 rounded-xl font-bold text-[13px] transition-all duration-300 shadow-sm flex justify-center items-center gap-2"
-          :class="isOtpComplete ? 'bg-[#145C34] text-white hover:bg-green-800 shadow-md shadow-green-900/20' : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
+          :class="(isOtpComplete && !isLoading) ? 'bg-[#145C34] text-white hover:bg-green-800 shadow-md shadow-green-900/20' : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
         >
-          Verifikasi Sekarang
-          <i v-if="isOtpComplete" class="fa-solid fa-arrow-right text-[11px]"></i>
+          <i v-if="isLoading" class="fa-solid fa-circle-notch fa-spin"></i>
+          {{ isLoading ? 'Memverifikasi...' : 'Verifikasi Sekarang' }}
+          <i v-if="isOtpComplete && !isLoading" class="fa-solid fa-arrow-right text-[11px]"></i>
         </button>
       </form>
 
-      <!-- Opsi Kirim Ulang Kode -->
       <div class="mt-8 text-center text-[12px]">
         <p class="text-gray-500 mb-1">Belum menerima kode?</p>
         <button 
@@ -65,10 +65,25 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import authGuest from '~/middleware/auth-guest'
 
-// --- State OTP ---
+definePageMeta({
+  middleware: authGuest
+})
+
+const route = useRoute()
+const router = useRouter()
+const config = useRuntimeConfig()
+
+// --- Ambil Data dari URL Query ---
+const userEmail = ref(route.query.email || '')
+const userFullname = ref(route.query.fullname || '')
+
+// --- State OTP & Loading ---
 const otpValues = ref(['', '', '', '', '', ''])
-const otpInputs = ref([]) // Array untuk menyimpan referensi DOM setiap input
+const otpInputs = ref([]) 
+const isLoading = ref(false)
 
 // Mengecek apakah seluruh 6 kotak sudah terisi
 const isOtpComplete = computed(() => {
@@ -77,13 +92,10 @@ const isOtpComplete = computed(() => {
 
 // --- Logika Input OTP (Auto Advance) ---
 const handleInput = (index, event) => {
-  // Hanya izinkan angka
   let val = event.target.value.replace(/\D/g, '')
   
-  // Update model dengan angka pertama saja (jika user mengetik cepat)
   otpValues.value[index] = val.substring(0, 1)
 
-  // Auto-advance ke kotak selanjutnya jika ada input
   if (val && index < 5) {
     otpInputs.value[index + 1].focus()
   }
@@ -91,16 +103,13 @@ const handleInput = (index, event) => {
 
 // --- Logika Keydown (Auto Backspace) ---
 const handleKeydown = (index, event) => {
-  // Jika menekan Backspace, kotak saat ini kosong, dan bukan kotak pertama
-  // Maka hapus isi dan pindah fokus ke kotak sebelumnya
   if (event.key === 'Backspace' && !otpValues.value[index] && index > 0) {
     otpInputs.value[index - 1].focus()
-    // Otomatis hapus value kotak sebelumnya agar UX lebih natural
     otpValues.value[index - 1] = '' 
   }
 }
 
-// --- Logika Paste (Copas dari clipboard) ---
+// --- Logika Paste ---
 const handlePaste = (event) => {
   event.preventDefault()
   const pastedData = event.clipboardData.getData('text').replace(/\D/g, '').substring(0, 6)
@@ -110,21 +119,48 @@ const handlePaste = (event) => {
     for (let i = 0; i < chars.length; i++) {
       otpValues.value[i] = chars[i]
     }
-    // Fokuskan ke kotak kosong terakhir atau kotak paling ujung
+
     const focusIndex = chars.length < 6 ? chars.length : 5
     otpInputs.value[focusIndex].focus()
   }
 }
 
-// --- Fungsi Submit Verifikasi ---
-const handleVerify = () => {
+// --- Fungsi Submit Verifikasi ke API ---
+const handleVerify = async () => {
   const finalCode = otpValues.value.join('')
-  console.log('Mengirim kode untuk verifikasi:', finalCode)
-  // TODO: Tambahkan fungsi pemanggilan API ke backend Anda di sini
+  isLoading.value = true
+
+  try {
+    const payload = {
+      fullname: userFullname.value,
+      email: userEmail.value,
+      verificationCode: finalCode
+    }
+
+    const response = await $fetch(`${config.public.apiBaseUrl}/auth/email-verify`, {
+      method: 'POST',
+      body: payload
+    })
+    
+    // Arahkan ke halaman login jika berhasil
+    router.push({
+      path: '/auth/signin',
+      query: {
+        email: payload.email
+      }
+    })
+
+  } catch (error) {
+    console.error('Verifikasi gagal:', error)
+    const errorMessage = error.data?.message || 'Kode verifikasi tidak valid atau telah kedaluwarsa.'
+    alert(`Gagal: ${errorMessage}`)
+  } finally {
+    isLoading.value = false
+  }
 }
 
 // --- Logika Hitung Mundur (Kirim Ulang) ---
-const countdown = ref(60) // Mulai dari 60 detik
+const countdown = ref(60)
 let timerInterval = null
 
 const formattedCountdown = computed(() => {
@@ -144,22 +180,38 @@ const startTimer = () => {
   }, 1000)
 }
 
-const resendCode = () => {
+const resendCode = async () => {
   if (countdown.value === 0) {
     console.log('Meminta ulang kode verifikasi API...')
-    // TODO: Panggil API resend OTP di sini
-    startTimer()
     
-    // Kosongkan form kembali setelah kirim ulang
-    otpValues.value = ['', '', '', '', '', '']
-    otpInputs.value[0].focus()
+    try {
+      // TODO: Panggil API resend OTP di sini. Contoh:
+      // await $fetch(`${config.public.apiBaseUrl}/api/auth/resend-code`, {
+      //   method: 'POST',
+      //   body: { email: userEmail.value }
+      // })
+      
+      alert('Kode verifikasi baru telah dikirim ke email Anda.')
+      startTimer()
+      otpValues.value = ['', '', '', '', '', '']
+      otpInputs.value[0].focus()
+
+    } catch (error) {
+      alert('Gagal mengirim ulang kode. Coba lagi nanti.')
+    }
   }
 }
 
 // --- Lifecycle Hooks ---
 onMounted(() => {
+  // Jika tidak ada email dari URL, berarti user memaksa masuk ke page ini tanpa mendaftar
+  if (!userEmail.value && !userFullname.value) {
+    alert('Sesi pendaftaran tidak ditemukan. Silakan daftar kembali.')
+    router.push('/auth/signup')
+    return
+  }
+
   startTimer()
-  // Fokus otomatis ke input pertama saat halaman dimuat
   if (otpInputs.value[0]) {
     otpInputs.value[0].focus()
   }
@@ -169,15 +221,3 @@ onUnmounted(() => {
   if (timerInterval) clearInterval(timerInterval)
 })
 </script>
-
-<style scoped>
-/* Menghilangkan panah spinner pada input number di berbagai browser */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-input[type=number] {
-  -moz-appearance: textfield;
-}
-</style>

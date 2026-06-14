@@ -1,5 +1,6 @@
 <template>
-  <MobileHeaderDefault title="Masuk" backTo="" hideSearch />
+  <MobileHeaderDefault title="Masuk" :backTo="route.query.email ? undefined : ''" hideSearch />
+
   <div class="p-6">
     <!-- Header -->
     <div class="flex flex-col items-center text-center mt-4 mb-6">
@@ -31,6 +32,7 @@
           <input 
             v-model="formLogin.password"
             :type="showPassword ? 'text' : 'password'" 
+            minlength="8" 
             placeholder="Masukkan kata sandi"
             required
             class="w-full bg-white border border-gray-200 text-[13px] rounded-xl pl-11 pr-11 py-3.5 focus:outline-none focus:border-[#145C34] focus:ring-1 focus:ring-[#145C34] transition-colors shadow-sm"
@@ -60,9 +62,12 @@
 
       <button 
         type="submit" 
-        class="w-full bg-[#145C34] text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-green-900/20 hover:bg-green-800 transition active:scale-[0.99] block"
+        :disabled="isLoading"
+        class="w-full py-3.5 rounded-xl font-bold text-[13px] transition-all duration-300 shadow-sm flex justify-center items-center gap-2"
+        :class="(!isLoading) ? 'bg-[#145C34] text-white hover:bg-green-800 shadow-md shadow-green-900/20' : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
       >
-        Masuk
+        <i v-if="isLoading" class="fa-solid fa-circle-notch fa-spin"></i>
+        {{ isLoading ? 'Memproses...' : 'Masuk' }}
       </button>
 
       <!-- Divider -->
@@ -102,20 +107,63 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import authGuest from '~/middleware/auth-guest'
+
+definePageMeta({
+  middleware: authGuest
+})
+
+const route = useRoute()
+const router = useRouter()
+const config = useRuntimeConfig()
 
 // --- State Keamanan & Form ---
 const showPassword = ref(false)
+const isLoading = ref(false)
 
 const formLogin = ref({
-  email: '',
+  email: route.query.email || '', 
   password: '',
   rememberMe: false
 })
 
 // --- Fungsi Submit Login ---
-const handleLogin = () => {
-  console.log('Mencoba masuk dengan data:', formLogin.value)
-  // TODO: Integrasikan dengan fungsi signInWithPassword (Supabase) atau endpoint API backend Anda
+const handleLogin = async () => {
+  isLoading.value = true
+
+  try {
+    const response = await $fetch(`${config.public.apiBaseUrl}/auth/signin`, {
+      method: 'POST',
+      body: {
+        email: formLogin.value.email,
+        password: formLogin.value.password
+      }
+    })
+
+    console.log('Masuk berhasil:', response)
+
+    // Menyimpan token ke dalam Cookie untuk digunakan oleh middleware
+    // Sesuaikan "response.token" atau "response.data.token" dengan struktur kembalian dari API Anda
+    const token = response.token || response.data?.accessToken
+    
+    if (token) {
+      // Jika "Ingat Saya" dicentang, cookie akan bertahan 7 hari, jika tidak hanya sampai browser ditutup
+      const cookieOptions = formLogin.value.rememberMe ? { maxAge: 60 * 60 * 24 * 7 } : {}
+      const accessToken = useCookie('access_token', cookieOptions)
+      accessToken.value = token
+    }
+
+    // Arahkan ke halaman utama atau profil setelah berhasil login
+    router.push('/') 
+
+  } catch (error) {
+    console.error('Masuk gagal:', error)
+    const errorMessage = error.data?.message || 'Email atau kata sandi tidak sesuai. Silakan coba lagi.'
+    alert(`Gagal: ${errorMessage}`)
+  } finally {
+    isLoading.value = false
+  }
 }
 
 // --- Fungsi Login Pihak Ketiga (OAuth) ---
@@ -124,10 +172,3 @@ const handleOAuth = (platform) => {
   // TODO: Integrasikan dengan fungsi signInWithOAuth
 }
 </script>
-
-<style scoped>
-/* Menghilangkan efek biru bawaan browser smartphone saat elemen interaktif diklik */
-button, input, a, label {
-  -webkit-tap-highlight-color: transparent;
-}
-</style>

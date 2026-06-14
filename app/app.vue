@@ -26,4 +26,17 @@
   opacity: 0;
   transform: translateY(-5px);
 }
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+button, input, a, label {
+  -webkit-tap-highlight-color: transparent;
+}
 </style>

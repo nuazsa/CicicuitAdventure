@@ -74,8 +74,12 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import authCustomer from '~/middleware/auth-customer'
 
-const route = useRoute()
+definePageMeta({
+  middleware: authCustomer
+})
+
 
 // State untuk Tabs
 const tabs = ['Belum Bayar', 'Aktif', 'Riwayat']

@@ -2,7 +2,7 @@
   <!-- Header -->
   <MobileHeaderDefault title="Pengaturan Profil" backTo="/profile" hideSearch />
 
-  <div class="px-5 pt-6 flex flex-col gap-6">
+  <div class="px-5 pt-6 pb-10 flex flex-col gap-6">
     
     <div class="flex flex-col items-center">
       <div class="relative">
@@ -116,66 +116,81 @@
         </div>
       </div>
 
+      <button 
+        type="submit"
+        :disabled="isEditingWhatsapp"
+        class="w-full mt-4 py-3.5 rounded-xl font-bold text-[14px] transition shadow-md flex justify-center items-center gap-2"
+        :class="isEditingWhatsapp ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-[#145C34] text-white hover:bg-green-800 shadow-green-900/20'"
+      >
+        <i class="fa-regular fa-floppy-disk"></i> Simpan Perubahan
+      </button>
     </form>
-  </div>
 
-  <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-100 p-4 z-50">
-    <button 
-      @click="handleSaveProfile"
-      :disabled="isEditingWhatsapp"
-      class="w-full py-3.5 rounded-xl font-bold text-[14px] transition shadow-md flex justify-center items-center gap-2"
-      :class="isEditingWhatsapp ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-[#145C34] text-white hover:bg-green-800 shadow-green-900/20'"
-    >
-      <i class="fa-regular fa-floppy-disk"></i> Simpan Perubahan
-    </button>
+    <div class="pt-6">
+      <div class="flex items-center mb-6">
+        <div class="flex-1 h-px bg-gray-200"></div>
+        <span class="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Zona Berbahaya</span>
+        <div class="flex-1 h-px bg-gray-200"></div>
+      </div>
+
+      <button 
+        @click="handleLogout" 
+        type="button" 
+        class="w-full mt-4 py-3.5 rounded-xl font-bold text-[14px] transition shadow-sm flex justify-center items-center gap-2 bg-red-50 border border-red-100 text-red-600 hover:bg-red-100 active:scale-[0.98]"
+      >
+        <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar Akun
+      </button>
+    </div>
+
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router' 
+import authCustomer from '~/middleware/auth-customer'
+
+definePageMeta({
+  middleware: authCustomer
+})
+
+const router = useRouter() 
 
 // --- Data Profil Simulasi (Sesuai Struktur Database) ---
 const formSetting = ref({
   fullname: 'Andi Pendaki',
   avatar_url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
-  whatsapp: '81574749156', // Tanpa 0 atau +62 (sudah di-handle di UI)
+  whatsapp: '81574749156', 
   birthdate: '1998-05-15',
-  gender: 'M', // 'M' untuk Pria, 'F' untuk Wanita
+  gender: 'M', 
   updated_at: '2026-06-10T14:30:00Z'
 })
 
-// Formatting Timestamp menjadi lebih ramah dibaca
 const formattedUpdatedAt = computed(() => {
   const date = new Date(formSetting.value.updated_at)
   return new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(date)
 })
 
 // --- State Keamanan WhatsApp ---
-const isWhatsappVerified = ref(true) // Default true dari database
+const isWhatsappVerified = ref(true) 
 const isEditingWhatsapp = ref(false)
-const originalWhatsapp = ref(formSetting.value.whatsapp) // Menyimpan WA lama jika batal ubah
+const originalWhatsapp = ref(formSetting.value.whatsapp) 
 
 const toggleEditWhatsapp = () => {
   if (isEditingWhatsapp.value) {
-    // Jika Batal, kembalikan ke nomor semula
     formSetting.value.whatsapp = originalWhatsapp.value
     isEditingWhatsapp.value = false
   } else {
-    // Mode Ubah
     isEditingWhatsapp.value = true
     isWhatsappVerified.value = false
   }
 }
 
 const handleVerifyWhatsapp = () => {
-  // TODO: Integrasi dengan logika OTP WhatsApp sesungguhnya di sini
-  // Simulasi berhasil verifikasi:
   alert(`Kode OTP telah dikirim ke +62${formSetting.value.whatsapp}`)
-  
-  // Mengunci kembali input setelah diverifikasi
   isWhatsappVerified.value = true
   isEditingWhatsapp.value = false
-  originalWhatsapp.value = formSetting.value.whatsapp // Simpan sbg WA utama yang baru
+  originalWhatsapp.value = formSetting.value.whatsapp 
 }
 
 // --- Fungsi Simpan ---
@@ -185,7 +200,20 @@ const handleSaveProfile = () => {
     return
   }
   console.log('Menyimpan Data Profil:', formSetting.value)
-  // TODO: Eksekusi API Update ke Backend Database
   alert('Profil berhasil diperbarui!')
+}
+
+// --- Fungsi Logout ---
+const handleLogout = () => {
+  const confirmLogout = confirm('Apakah Anda yakin ingin keluar dari akun?')
+  
+  if (confirmLogout) {
+    // Menghapus cookie
+    const token = useCookie('access_token')
+    token.value = null
+    
+    // Melempar kembali ke halaman login
+    router.push('/auth/signin')
+  }
 }
 </script>
