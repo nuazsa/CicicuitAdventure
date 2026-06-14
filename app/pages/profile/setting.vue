@@ -1,5 +1,5 @@
 <template>
-  <!-- Header -->
+  <div>
   <MobileHeaderDefault title="Pengaturan Profil" backTo="/profile" hideSearch />
 
   <div class="px-5 pt-6 pb-10 flex flex-col gap-6">
@@ -201,7 +201,7 @@
       </div>
     </div>
   </div>
-
+  </div>
 </template>
 
 <script setup>
@@ -234,7 +234,9 @@ const syncDataToForm = () => {
       fullname: profileData.value.fullname || '',
       avatar_url: profileData.value.avatar_url || null,
       whatsapp: profileData.value.whatsapp || null,
-      birthdate: profileData.value.birthdate || null,
+      birthdate: profileData.value.birthdate 
+        ? String(profileData.value.birthdate).split('T')[0] 
+        : null,
       gender: profileData.value.gender || null
     }
     originalWhatsapp.value = profileData.value.whatsapp || null
@@ -255,10 +257,17 @@ const formattedUpdatedAt = computed(() => {
 const hasChanges = computed(() => {
   if (!profileData.value) return false 
 
+  // --- PERBAIKAN PENTING ---
+  // Bandingkan dengan versi terpotong dari birthdate, 
+  // bukan versi asli dari backend (yang mungkin mengandung T00:00:00.000Z)
+  const originalBirthdate = profileData.value.birthdate 
+        ? String(profileData.value.birthdate).split('T')[0] 
+        : null;
+
   return formSetting.value.fullname !== (profileData.value.fullname || '') ||
          formSetting.value.avatar_url !== profileData.value.avatar_url ||
          formSetting.value.whatsapp !== profileData.value.whatsapp ||
-         formSetting.value.birthdate !== profileData.value.birthdate ||
+         formSetting.value.birthdate !== originalBirthdate ||
          formSetting.value.gender !== profileData.value.gender
 })
 
@@ -337,12 +346,18 @@ const handlePaste = (event) => {
 
 // --- FUNGSI SIMPAN ---
 const handleSaveProfile = async () => {
-  debugger;
   try {
+    const payload = { ...formSetting.value }
+
+    // Jika birthdate mengandung huruf T, kita potong
+    if (payload.birthdate && payload.birthdate.includes('T')) {
+      payload.birthdate = payload.birthdate.split('T')[0];
+    }
+
     await $fetch(`${config.public.apiBaseUrl}/profile/me`, {
       method: 'PUT',
       headers: { 'Authorization': `Bearer ${token.value}` },
-      body: formSetting.value
+      body: payload
     })
 
     alert('Profil berhasil diperbarui!')
