@@ -10,28 +10,28 @@
 
       <div class="w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden -mt-12 bg-gray-200 relative">
         <NuxtImg
-          :src="profileData.user.image"
-          :alt="profileData.user.name" 
+          :src="profileData?.avatar_url || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200'" "
+          :alt="profileData?.fullname" 
           class="w-full h-full object-cover"
           format="webp"
           loading="lazy" 
         />
       </div>
 
-      <h2 class="text-xl font-extrabold text-[#114226] mt-3">{{ profileData.user.name }}</h2>
+      <h2 class="text-xl font-extrabold text-[#114226] mt-3">{{ profileData?.fullname }}</h2>
       <div class="bg-gray-100 text-[#145C34] px-3 py-1.5 rounded-full text-[10px] font-bold mt-2 flex items-center gap-1.5 tracking-wide">
-        <i class="fa-solid fa-star"></i> {{ profileData.user.membership }}
+        <i class="fa-solid fa-star"></i> {{ profileInfo.user.membership }}
       </div>
 
       <div class="w-full mt-5">
         <div class="flex justify-between text-[11px] font-bold text-gray-600 mb-2">
           <span>Level Progress</span>
-          <span class="text-[#145C34]">{{ profileData.user.points }} / {{ profileData.user.maxPoints }} Poin</span>
+          <span class="text-[#145C34]">{{ profileInfo.user.points }} / {{ profileInfo.user.maxPoints }} Poin</span>
         </div>
         <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
           <div 
             class="bg-gradient-to-r from-[#145C34] to-[#4CAF50] h-full rounded-full"
-            :style="{ width: profileData.user.progressPercentage + '%' }"
+            :style="{ width: profileInfo.user.progressPercentage + '%' }"
           ></div>
         </div>
       </div>
@@ -74,9 +74,9 @@
   </div>
 
   <div class="mt-10 mb-8 flex flex-col items-center text-center">
-    <p class="text-[10px] font-semibold text-gray-500">{{ profileData.appInfo.appName }} - Version {{ profileData.appInfo.version }}</p>
-    <p class="text-[10px] text-gray-400 mt-0.5">&copy; {{ profileData.appInfo.year }} {{ profileData.appInfo.company }}</p>
-    <p class="text-[10px] text-gray-400 mt-0.5">Design & Development by {{ profileData.appInfo.developer }}</p>
+    <p class="text-[10px] font-semibold text-gray-500">{{ profileInfo.appInfo.appName }} - Version {{ profileInfo.appInfo.version }}</p>
+    <p class="text-[10px] text-gray-400 mt-0.5">&copy; {{ profileInfo.appInfo.year }} {{ profileInfo.appInfo.company }}</p>
+    <p class="text-[10px] text-gray-400 mt-0.5">Design & Development by {{ profileInfo.appInfo.developer }}</p>
   </div>
 
   <MobileNavigationBottom />
@@ -108,28 +108,28 @@
         <div class="text-sm text-gray-600 mb-6">
 
           <div v-if="selectedMenu?.id === 1">
-            <p class="mb-3">{{ profileData.contact.intro }}</p>
+            <p class="mb-3">{{ profileInfo.contact.intro }}</p>
             <ul class="list-disc pl-5 space-y-2">
               <li>
-                {{ profileData.contact.general.label }}
-                <a :href="profileData.contact.general.link" target="_blank"
-                  class="text-[#145C34] font-bold hover:underline">{{ profileData.contact.general.phone }}</a>
+                {{ profileInfo.contact.general.label }}
+                <a :href="profileInfo.contact.general.link" target="_blank"
+                  class="text-[#145C34] font-bold hover:underline">{{ profileInfo.contact.general.phone }}</a>
               </li>
               <li>
-                {{ profileData.contact.tech.label }}
-                <a :href="profileData.contact.tech.link" target="_blank"
-                  class="text-[#145C34] font-bold hover:underline">{{ profileData.contact.tech.phone }}</a>
+                {{ profileInfo.contact.tech.label }}
+                <a :href="profileInfo.contact.tech.link" target="_blank"
+                  class="text-[#145C34] font-bold hover:underline">{{ profileInfo.contact.tech.phone }}</a>
               </li>
             </ul>
           </div>
 
           <div v-else-if="selectedMenu?.id === 2" class="flex flex-col items-center text-center space-y-4">
-            <NuxtImg :src="profileData.about.logo" alt="Logo Cicitcuit Adventure" class="w-60 h-auto object-contain" format="webp" />
+            <NuxtImg :src="profileInfo.about.logo" alt="Logo Cicitcuit Adventure" class="w-60 h-auto object-contain" format="webp" />
 
-            <p class="leading-relaxed" v-html="profileData.about.paragraph1"></p>
-            <p class="leading-relaxed" v-html="profileData.about.paragraph2"></p>
+            <p class="leading-relaxed" v-html="profileInfo.about.paragraph1"></p>
+            <p class="leading-relaxed" v-html="profileInfo.about.paragraph2"></p>
             <p class="leading-relaxed italic text-[13px] text-gray-500 bg-[#E8F5E9]/50 p-3 rounded-lg border border-[#145C34]/10">
-              {{ profileData.about.mission }}
+              {{ profileInfo.about.mission }}
             </p>
           </div>
 
@@ -155,11 +155,15 @@ definePageMeta({
   middleware: authCustomer
 })
 
+const { profileData, isProfileLoading, fetchProfile } = useProfile();
+
+onMounted(async () => {
+  await fetchProfile()
+})
+
 // --- Data Object Configuration ---
-const profileData = ref({
+const profileInfo = ref({
   user: {
-    name: 'Andi Pendaki',
-    image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
     membership: 'ANGGOTA SILVER',
     points: 150,
     maxPoints: 500,
