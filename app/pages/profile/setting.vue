@@ -127,12 +127,15 @@
 
       <button 
         type="submit"
-        :disabled="!isFormValidToSave"
+        :disabled="!isFormValidToSave || isSaving"
         class="w-full mt-4 py-3.5 rounded-xl font-bold text-[14px] transition shadow-md flex justify-center items-center gap-2"
-        :class="!isFormValidToSave ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none' : 'bg-[#145C34] text-white hover:bg-green-800 shadow-green-900/20'"
+        :class="(!isFormValidToSave || isSaving) ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none' : 'bg-[#145C34] text-white hover:bg-green-800 shadow-green-900/20'"
       >
-        <i class="fa-regular fa-floppy-disk"></i> Simpan Perubahan
+        <i v-if="isSaving" class="fa-solid fa-circle-notch fa-spin"></i>
+        <i v-else class="fa-regular fa-floppy-disk"></i> 
+        {{ isSaving ? 'Menyimpan...' : 'Simpan Perubahan' }}
       </button>
+
     </form>
 
     <div class="pt-6">
@@ -228,6 +231,8 @@ const formSetting = ref({
 const isEditingWhatsapp = ref(false)
 const originalWhatsapp = ref(null)
 
+const isSaving = ref(false)
+
 const syncDataToForm = () => {
   if (profileData.value) {
     formSetting.value = {
@@ -257,9 +262,6 @@ const formattedUpdatedAt = computed(() => {
 const hasChanges = computed(() => {
   if (!profileData.value) return false 
 
-  // --- PERBAIKAN PENTING ---
-  // Bandingkan dengan versi terpotong dari birthdate, 
-  // bukan versi asli dari backend (yang mungkin mengandung T00:00:00.000Z)
   const originalBirthdate = profileData.value.birthdate 
         ? String(profileData.value.birthdate).split('T')[0] 
         : null;
@@ -346,10 +348,10 @@ const handlePaste = (event) => {
 
 // --- FUNGSI SIMPAN ---
 const handleSaveProfile = async () => {
+  isSaving.value = true;
   try {
     const payload = { ...formSetting.value }
 
-    // Jika birthdate mengandung huruf T, kita potong
     if (payload.birthdate && payload.birthdate.includes('T')) {
       payload.birthdate = payload.birthdate.split('T')[0];
     }
@@ -366,6 +368,8 @@ const handleSaveProfile = async () => {
     syncDataToForm()
   } catch (error) {
     alert('Gagal menyimpan perubahan.')
+  } finally {
+    isSaving.value = false;
   }
 }
 

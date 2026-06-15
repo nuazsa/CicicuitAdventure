@@ -10,15 +10,15 @@
 
       <div class="w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden -mt-12 bg-gray-200 relative">
         <NuxtImg
-          :src="profileData?.avatar_url || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200'" "
-          :alt="profileData?.fullname" 
+          :src="profileData?.avatar_url || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200'" 
+          :alt="profileData?.fullname || 'Avatar Pengguna'" 
           class="w-full h-full object-cover"
           format="webp"
           loading="lazy" 
         />
       </div>
 
-      <h2 class="text-xl font-extrabold text-[#114226] mt-3">{{ profileData?.fullname }}</h2>
+      <h2 class="text-xl font-extrabold text-[#114226] mt-3">{{ profileData?.fullname || 'Memuat...' }}</h2>
       <div class="bg-gray-100 text-[#145C34] px-3 py-1.5 rounded-full text-[10px] font-bold mt-2 flex items-center gap-1.5 tracking-wide">
         <i class="fa-solid fa-star"></i> {{ profileInfo.user.membership }}
       </div>
