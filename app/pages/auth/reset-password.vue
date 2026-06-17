@@ -92,13 +92,14 @@ import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
+const config = useRuntimeConfig()
 
 // Ambil data dari URL
 const token = route.query.token
 const email = route.query.email
 
 // State UI
-const isCheckingToken = ref(true)
+const isCheckingToken = ref(false)
 const tokenError = ref(null) 
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
@@ -114,38 +115,25 @@ const isFormValid = computed(() => {
 })
 
 onMounted(async () => {
-  // 1. Validasi URL
-  // if (!token || !email) {
-  //   tokenError.value = "Tautan pemulihan tidak lengkap atau rusak."
-  //   isCheckingToken.value = false
-  //   return
-  // }
-
-  // 2. Cek ke Backend apakah token masih aktif
-  try {
-    // const response = await $fetch(`/api/auth/verify-token?token=${token}&email=${email}`)
-    
-    // Simulasi loading API
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // Jika backend bilang OK, biarkan form muncul
-    isCheckingToken.value = false
-    
-  } catch (error) {
-    tokenError.value = "Tautan ini sudah kedaluwarsa atau telah digunakan sebelumnya."
-    isCheckingToken.value = false
+  if (!token || !email) {
+    tokenError.value = "Tautan pemulihan tidak lengkap atau rusak."
+    isCheckingToken.value = true
+    return
   }
 })
 
 const handleSaveNewPassword = async () => {
-  // Pengamanan ganda meskipun tombol sudah di-disable
+  debugger
   if (!isFormValid.value) return
 
   isSaving.value = true
 
   try {
-    // Simulasi hit API
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    
+    await $fetch(`${config.public.apiBaseUrl}/auth/reset-password`, {
+      method: 'POST',
+      body: { token, email, password: newPassword.value }
+    })
 
     alert("Kata sandi berhasil diubah! Silakan masuk kembali.")
     router.push('/auth/signin')

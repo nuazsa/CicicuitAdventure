@@ -85,13 +85,14 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import authGuest from '~/middleware/auth-guest'
 
-// Jika Anda punya middleware untuk mengecek status belum login:
-// definePageMeta({
-//   middleware: 'guest' 
-// })
+definePageMeta({
+  middleware: authGuest
+})
 
 const router = useRouter()
+const config = useRuntimeConfig()
 
 // --- State ---
 const contactInput = ref('')
@@ -113,19 +114,12 @@ const handleResetPassword = async () => {
   isLoading.value = true
 
   try {
-    // TODO: Ganti dengan pemanggilan API Backend sesungguhnya
-    // const config = useRuntimeConfig()
-    // await $fetch(`${config.public.apiBaseUrl}/auth/forgot-password`, {
-    //   method: 'POST',
-    //   body: { contact: contactInput.value }
-    // })
+    await $fetch(`${config.public.apiBaseUrl}/auth/forgot-password`, {
+      method: 'POST',
+      body: { email: contactInput.value }
+    })
 
-    // Simulasi loading jaringan selama 1.5 detik
-    await new Promise(resolve => setTimeout(resolve, 1500))
-
-    // Tampilkan layar sukses
     isSuccess.value = true
-
   } catch (error) {
     alert('Terjadi kesalahan saat memproses permintaan. Silakan coba lagi.')
   } finally {
