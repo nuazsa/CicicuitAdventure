@@ -55,7 +55,7 @@
           <input type="checkbox" v-model="formLogin.rememberMe" class="hidden" />
         </label>
 
-        <NuxtLink to="/forgot-password" class="text-[11px] font-bold text-[#145C34] hover:text-green-800 hover:underline transition">
+        <NuxtLink to="/auth/forgot-password" class="text-[11px] font-bold text-[#145C34] hover:text-green-800 hover:underline transition">
           Lupa Kata Sandi?
         </NuxtLink>
       </div>
