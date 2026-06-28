@@ -43,7 +43,7 @@
       <div class="flex justify-between px-2">
         <div v-for="facility in tripDetail.facilities" :key="facility.name" class="flex flex-col items-center gap-2">
           <div class="w-12 h-12 bg-white rounded-full shadow-sm border border-gray-100 flex items-center justify-center text-[#145C34]">
-            <i :class="[facility.icon, 'text-lg']"></i>
+            {{ facility.icon }}
           </div>
           <span class="text-[10px] font-medium text-gray-600">{{ facility.name }}</span>
         </div>
@@ -51,9 +51,14 @@
     </div>
 
     <!-- Schedule -->
-    <MobileCardSchedule 
-      :dateRange="tripDetail.schedule.dateRange"
-      :duration="tripDetail.schedule.duration"
+    <MobileCardSchedule
+      v-model="participantCount"
+      :isStatic="isOpenTrip"
+      :staticDateRange="tripDetail?.schedule?.dateRange"
+      :staticDuration="tripDetail?.schedule?.duration"
+      :counterLabel="isOpenTrip ? 'Jumlah Pax' : 'Jumlah Porter'"
+      :counterSubLabel="isOpenTrip ? '(Tentukan jumlah peserta yang ikut)' : '(Saran: 1 porter / 20kg logistik)'"
+      @dateSelected="handleDynamicDateSelection"
     />
 
     <!-- Hiking Information -->
@@ -75,7 +80,7 @@
             format="webp"
             loading="lazy"
           />
-          <div v-if="pkg.discountLabel" class="absolute top-2 left-2 bg-[#C62828] text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">
+          <div v-if="pkg.discountLabel" class="absolute top-2 left-2 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm" :style="{ backgroundColor: pkg.badgeColor }">
             {{ pkg.discountLabel }}
           </div>
         </div>
@@ -115,77 +120,25 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
+const config = useRuntimeConfig()
+const uuid = route.params.uuid || route.params.id
 
-// --- Data Object Mockup Khusus Gunung Gede Pangrango ---
-const tripDetail = ref({
-  id: 1,
-  title: 'Open Trip Gunung Gede Pangrango 2H1M',
-  heroImage:
-    'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=1200&q=80',
-  location: 'Bogor, Jawa Barat',
-  rating: {
-    score: 4.9,
-    category: 'Sangat Bagus',
-    reviewCount: 84,
-    topReview: {
-      userInitial: 'RN',
-      comment: 'Seru banget, dapet temen baru. Tenda bersih dan guidenya ramah mengarahkan rute.'
-    }
-  },
-  facilities: [
-    { name: 'Travel PP', icon: 'fa-solid fa-van-shuttle' },
-    { name: 'Simaksi Resmi', icon: 'fa-solid fa-ticket' },
-    { name: 'Tenda Dome', icon: 'fa-solid fa-campground' },
-    { name: 'Makan Up', icon: 'fa-solid fa-utensils' }
-  ],
-  schedule: {
-    dateRange: '20 - 21 Desember 2024',
-    duration: '2 Hari, 1 Malam'
-  },
-  hikingInfo: {
-    meetingPoint: 'Basecamp Cibodas',
-    meetingTime: '21:00 WIB'
-  },
-  packages: [
-    {
-      id: 1,
-      title: 'Paket Jalur Cibodas (Santai & Air Terjun)',
-      image:
-        'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80',
-      discountLabel: 'Promo Akhir Tahun',
-      warningText: 'Sisa 3 slot kursi lagi untuk keberangkatan minggu ini!',
-      tags: [
-        'Lewat Telaga Biru',
-        'Bonus Air Terjun',
-        'Makan 3x di Gunung'
-      ],
-      originalPrice: 'Rp 450.000',
-      currentPrice: 'Rp 395.000',
-      priceUnit: 'pax'
-    },
-    {
-      id: 2,
-      title: 'Paket Jalur Gunung Putri (Jalur Cepat)',
-      image:
-        'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80',
-      discountLabel: null,
-      warningText: null,
-      tags: [
-        'Estimasi 4-5 Jam',
-        'Lurus Terjal',
-        'Makan 3x di Gunung'
-      ],
-      originalPrice: null,
-      currentPrice: 'Rp 380.000',
-      priceUnit: 'pax'
-    }
-  ],
+const isOpenTrip = ref(true) 
+const participantCount = ref(1)
 
-  mapUrl:
-    ' https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15849.079490132217!2d106.98832095541994!3d-6.736896000000005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69b5ff50dc29bd%3A0x49332042ef4241!2sbase%20camp%20explore%20cibodas%20.base%20camp%20pendakian%20Gunung%20Gede%20Pangrango%20via%20cibodas!5e0!3m2!1sid!2sid!4v1780932021707!5m2!1sid!2sid'
+const { data, pending, error } = await useFetch(`/services/explore/${uuid}`, {
+  baseURL: config.public.apiBase,
 })
+const tripDetail = computed(() => data.value?.data || null)
+
+
+const handleDynamicDateSelection = (selectedDates) => {
+  console.log('User memilih tanggal:', selectedDates)
+  // Anda bisa simpan ini di state Pinia atau diteruskan ke halaman checkout nanti
+}
 </script>

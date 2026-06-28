@@ -16,15 +16,22 @@
       </div>
       <i class="fa-solid fa-chevron-right text-gray-400 group-hover:text-gray-600 transition text-sm"></i>
     </div>
+    
     <div class="flex items-start gap-3">
       <div
         class="w-8 h-8 bg-[#F58220] text-white rounded-full flex items-center justify-center font-bold text-[10px] shrink-0 mt-1">
         {{ topReview.userInitial }}
       </div>
+      
       <div>
+        <h4 class="text-[12px] font-bold text-gray-800 mb-0.5">
+          {{ topReview.userName || 'Pendaki Anonim' }}
+        </h4>
+        
         <div class="flex text-[#F58220] text-[10px] gap-0.5 mb-1">
           <i v-for="n in 5" :key="n" class="fa-solid fa-star"></i>
         </div>
+        
         <p class="text-[12px] text-gray-700 italic leading-snug">
           "{{ topReview.comment }}"
         </p>
