@@ -1,8 +1,6 @@
 <template>
-  <!-- Hero Header -->
   <MobileHeaderInBanner :title="porterDetail.title" backTo="/porter" />
 
-  <!-- Hero Banner -->
   <div class="relative h-[320px] w-full">
     <NuxtImg 
       :src="porterDetail.heroImage" 
@@ -13,16 +11,14 @@
     />
     
     <div class="absolute bottom-10 right-5 z-10">
-      <button class="bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-full text-[11px] font-bold flex items-center gap-2 shadow-sm hover:bg-white transition">
+      <button @click="isGalleryOpen = true" class="bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-full text-[11px] font-bold flex items-center gap-2 shadow-sm hover:bg-white transition active:scale-95">
         <i class="fa-regular fa-images"></i> Lihat Semua Foto
       </button>
     </div>
   </div>
 
-  <!-- Porter Details -->
   <div class="bg-[#F9FAFB] rounded-t-[2rem] -mt-6 relative z-20 px-5 pt-6 flex flex-col gap-6">
     
-    <!-- Porter Info -->
     <div>
       <h1 class="text-[22px] font-bold text-gray-900 leading-tight mb-2">{{ porterDetail.title }}</h1>
       <p class="text-[13px] text-gray-600 flex items-center gap-2">
@@ -30,7 +26,6 @@
       </p>
     </div>
 
-    <!-- Rating -->
     <MobileCardRanting
       :score="porterDetail.rating.score" 
       :category="porterDetail.rating.category" 
@@ -38,7 +33,6 @@
       :topReview="porterDetail.rating.topReview"
     />
 
-    <!-- Facilities & Skills -->
     <div>
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-[15px] font-bold text-gray-800">Fasilitas & Keahlian</h2>
@@ -54,19 +48,11 @@
       </div>
     </div>
 
-    <!-- Schedule -->
-    <MobileCardSchedule 
-      :dateRange="porterDetail.schedule.dateRange"
-      :duration="porterDetail.schedule.duration"
-    />
-
-    <!-- Hiking Information -->
     <MobileCardInformation 
       :meetingPoint="porterDetail.hikingInfo.meetingPoint" 
       :meetingTime="porterDetail.hikingInfo.meetingTime"
     />
 
-    <!-- Package Options -->
     <div class="flex flex-col gap-5">
       <h2 class="text-[15px] font-bold text-gray-800 -mb-1">Pilihan Paket</h2>
       
@@ -113,9 +99,15 @@
       </div>
     </div>
 
-    <!-- Basecamp Location   -->
     <MobileCardMeetingPoint :mapUrl="porterDetail.mapUrl" />
   </div>
+
+  <MobileGalleryModal 
+      :isOpen="isGalleryOpen" 
+      :photos="porterDetail?.photos" 
+      title="Galeri Porter"
+      @close="isGalleryOpen = false" 
+    />
 </template>
 
 <script setup>
@@ -124,12 +116,22 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
+const isGalleryOpen = ref(false)
+
 // --- Data Object Mockup ---
 const porterDetail = ref({
   id: 1,
   title: 'Porter Team Rinjani Perkasa',
-  heroImage:
-    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80',
+  heroImage: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80',
+  // TAMBAHAN: Array foto untuk galeri
+  photos: [
+    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&w=800&q=80'
+  ],
   location: 'Basecamp Sembalun, Gunung Rinjani',
   rating: {
     score: 5,
@@ -158,15 +160,10 @@ const porterDetail = ref({
     {
       id: 1,
       title: 'Paket Full Service (3H2M)',
-      image:
-        'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80',
       discountLabel: 'Hemat 20%',
-      warningText:
-        'Wah, tinggal 1 slot tim porter nih. Cepet pilih ya!',
-      tags: [
-        'Masak 3x Sehari',
-        'Bongkar Pasang Tenda'
-      ],
+      warningText: 'Wah, tinggal 1 slot tim porter nih. Cepet pilih ya!',
+      tags: ['Masak 3x Sehari', 'Bongkar Pasang Tenda'],
       originalPrice: 'Rp 900.000',
       currentPrice: 'Rp 750.000',
       priceUnit: 'porter'
@@ -174,21 +171,15 @@ const porterDetail = ref({
     {
       id: 2,
       title: 'Paket Hemat / Basic (3H2M)',
-      image:
-        'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=800&q=80',
       discountLabel: null,
       warningText: null,
-      tags: [
-        'Angkut Logistik',
-        'Maks 20 Kg'
-      ],
+      tags: ['Angkut Logistik', 'Maks 20 Kg'],
       originalPrice: null,
       currentPrice: 'Rp 500.000',
       priceUnit: 'porter'
     }
   ],
-
-  mapUrl:
-    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3947.452227974435!2d116.52213587464999!3d-8.357094691679832!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dcc2f796097cb0b%3A0xcb0bca9048d618f8!2sBasecamp%20Sembalun%20Trek%20Rinjani!5e0!3m2!1sen!2sid!4v1780714244868!5m2!1sen!2sid'
+  mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3947.452227974435!2d116.52213587464999!3d-8.357094691679832!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dcc2f796097cb0b%3A0xcb0bca9048d618f8!2sBasecamp%20Sembalun%20Trek%20Rinjani!5e0!3m2!1sen!2sid!4v1780714244868!5m2!1sen!2sid'
 })
 </script>

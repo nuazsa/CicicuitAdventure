@@ -1,47 +1,44 @@
 <template>
-  <MobileHeaderInBanner :title="tripDetail.title" backTo="/opentrip" />
+  <MobileHeaderInBanner :title="tripDetail?.title" backTo="/opentrip" />
 
   <div class="relative h-[320px] w-full">
     <NuxtImg 
-      :src="tripDetail.photos?.[0] || 'https://placehold.co/600x400/e2e8f0/64748b?text=Foto+Utama'" 
-      :alt="tripDetail.title" 
+      :src="tripDetail?.photos?.[0] || 'https://placehold.co/600x400/e2e8f0/64748b?text=Foto+Utama'" 
+      :alt="tripDetail?.title" 
       class="w-full h-full object-cover" 
       format="webp"
       preload
     />
     
     <div class="absolute bottom-10 right-5 z-10">
-      <button class="bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-full text-[11px] font-bold flex items-center gap-2 shadow-sm hover:bg-white transition">
+      <button @click="isGalleryOpen = true" class="bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-full text-[11px] font-bold flex items-center gap-2 shadow-sm hover:bg-white transition active:scale-95">
         <i class="fa-regular fa-images"></i> Lihat Semua Foto
       </button>
     </div>
   </div>
 
-  <!-- Trip Details -->
   <div class="bg-[#F9FAFB] rounded-t-[2rem] -mt-6 relative z-20 px-5 pt-6 flex flex-col gap-6">
     <div>
-      <h1 class="text-[22px] font-bold text-gray-900 leading-tight mb-2">{{ tripDetail.title }}</h1>
+      <h1 class="text-[22px] font-bold text-gray-900 leading-tight mb-2">{{ tripDetail?.title }}</h1>
       <p class="text-[13px] text-gray-600 flex items-center gap-2">
-        <i class="fa-solid fa-location-dot text-[#145C34]"></i> {{ tripDetail.location }}
+        <i class="fa-solid fa-location-dot text-[#145C34]"></i> {{ tripDetail?.location }}
       </p>
     </div>
 
-    <!-- Rating -->
     <MobileCardRanting
-      :score="tripDetail.rating.score" 
-      :category="tripDetail.rating.category" 
-      :reviewCount="tripDetail.rating.reviewCount" 
-      :topReview="tripDetail.rating.topReview"
+      :score="tripDetail?.rating?.score" 
+      :category="tripDetail?.rating?.category" 
+      :reviewCount="tripDetail?.rating?.reviewCount" 
+      :topReview="tripDetail?.rating?.topReview"
     />
 
-    <!-- Facilities & Skills -->
     <div>
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-[15px] font-bold text-gray-800">Fasilitas Open Trip</h2>
         <button class="text-[#145C34] text-[11px] font-bold hover:underline">Lihat Semua</button>
       </div>
       <div class="flex justify-between px-2">
-        <div v-for="facility in tripDetail.facilities" :key="facility.name" class="flex flex-col items-center gap-2">
+        <div v-for="facility in tripDetail?.facilities" :key="facility.name" class="flex flex-col items-center gap-2">
           <div class="w-12 h-12 bg-white rounded-full shadow-sm border border-gray-100 flex items-center justify-center text-[#145C34]">
             {{ facility.icon }}
           </div>
@@ -50,7 +47,6 @@
       </div>
     </div>
 
-    <!-- Schedule -->
     <MobileCardSchedule
       v-model="participantCount"
       :isStatic="isOpenTrip"
@@ -61,17 +57,15 @@
       @dateSelected="handleDynamicDateSelection"
     />
 
-    <!-- Hiking Information -->
     <MobileCardInformation 
-      :meetingPoint="tripDetail.hikingInfo.meetingPoint" 
-      :meetingTime="tripDetail.hikingInfo.meetingTime"
+      :meetingPoint="tripDetail?.hikingInfo?.meetingPoint" 
+      :meetingTime="tripDetail?.hikingInfo?.meetingTime"
     />
 
-    <!-- Package Options -->
     <div class="flex flex-col gap-5">
       <h2 class="text-[15px] font-bold text-gray-800 -mb-1">Pilihan Paket Rute</h2>
       
-      <div v-for="pkg in tripDetail.packages" :key="pkg.id" class="bg-white rounded-2xl overflow-hidden shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] border border-gray-100">
+      <div v-for="pkg in tripDetail?.packages" :key="pkg.id" class="bg-white rounded-2xl overflow-hidden shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] border border-gray-100">
         <div class="relative h-36 w-full">
           <NuxtImg 
             :src="pkg.image" 
@@ -114,9 +108,15 @@
       </div>
     </div>
 
-    <!-- Basecamp Location   -->
-    <MobileCardMeetingPoint :mapUrl="tripDetail.mapUrl" />
+    <MobileCardMeetingPoint :mapUrl="tripDetail?.mapUrl" />
   </div>
+
+  <MobileGalleryModal 
+      :isOpen="isGalleryOpen" 
+      :photos="tripDetail?.photos" 
+      title="Galeri Open Trip"
+      @close="isGalleryOpen = false" 
+    />
 </template>
 
 <script setup>
@@ -130,6 +130,7 @@ const uuid = route.params.uuid || route.params.id
 
 const isOpenTrip = ref(true) 
 const participantCount = ref(1)
+const isGalleryOpen = ref(false)
 
 const { data, pending, error } = await useFetch(`/services/explore/${uuid}`, {
   baseURL: config.public.apiBase,
