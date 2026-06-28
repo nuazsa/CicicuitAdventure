@@ -16,15 +16,34 @@
         </div>
         
         <div class="w-2/3 h-full bg-gray-200 relative group cursor-pointer">
-          <NuxtImg :src="trip.photos[0]" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Foto Utama trip" format="webp" loading="lazy" />
+          <NuxtImg 
+            :src="trip.photos?.[0] || 'https://placehold.co/600x400/e2e8f0/64748b?text=Foto+Utama'" 
+            class="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
+            alt="Foto Utama trip" 
+            format="webp" 
+            loading="lazy" 
+          />
         </div>
-        
+
         <div class="w-1/3 h-full flex flex-col gap-1 cursor-pointer">
           <div class="h-1/2 bg-gray-200 relative group overflow-hidden">
-            <NuxtImg :src="trip.photos[1]" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="Foto Tambahan 1" format="webp" loading="lazy" />
+            <NuxtImg 
+              :src="trip.photos?.[1] || 'https://placehold.co/300x200/e2e8f0/64748b?text=Foto+1'" 
+              class="w-full h-full object-cover group-hover:scale-110 transition duration-500" 
+              alt="Foto Tambahan 1" 
+              format="webp" 
+              loading="lazy" 
+            />
           </div>
+          
           <div class="h-1/2 bg-gray-200 relative group overflow-hidden">
-            <NuxtImg :src="trip.photos[2]" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="Foto Tambahan 2" format="webp" loading="lazy" />
+            <NuxtImg 
+              :src="trip.photos?.[2] || 'https://placehold.co/300x200/e2e8f0/64748b?text=Foto+2'" 
+              class="w-full h-full object-cover group-hover:scale-110 transition duration-500" 
+              alt="Foto Tambahan 2" 
+              format="webp" 
+              loading="lazy" 
+            />
             <div v-if="trip.remainingPhotos > 0" class="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-sm font-bold backdrop-blur-[1px]">
               +{{ trip.remainingPhotos }}
             </div>

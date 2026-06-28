@@ -3,7 +3,7 @@
 
   <div class="relative h-[320px] w-full">
     <NuxtImg 
-      :src="tripDetail.heroImage" 
+      :src="tripDetail.photos?.[0] || 'https://placehold.co/600x400/e2e8f0/64748b?text=Foto+Utama'" 
       :alt="tripDetail.title" 
       class="w-full h-full object-cover" 
       format="webp"
