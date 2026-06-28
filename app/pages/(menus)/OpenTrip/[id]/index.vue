@@ -1,5 +1,9 @@
 <template>
-  <MobileHeaderInBanner :title="tripDetail?.title" backTo="/opentrip" />
+  <MobileHeaderInBanner 
+    :title="tripDetail?.title" 
+    backTo="/opentrip" 
+    @share="handleShare" 
+  />
 
   <div class="relative h-[320px] w-full">
     <NuxtImg 
@@ -122,6 +126,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useHead, useRuntimeConfig, useFetch } from '#imports'
 
 const router = useRouter()
 const route = useRoute()
@@ -137,6 +142,45 @@ const { data, pending, error } = await useFetch(`/services/explore/${uuid}`, {
 })
 const tripDetail = computed(() => data.value?.data || null)
 
+watchEffect(() => {
+  if (tripDetail.value) {
+    const startingPrice = tripDetail.value.packages?.[0]?.currentPrice || ''
+    
+    useHead({
+      title: tripDetail.value.title,
+      meta: [
+        { property: 'og:title', content: tripDetail.value.title },
+        { property: 'og:description', content: `Mulai dari ${startingPrice}. Ayo jelajahi keindahan ${tripDetail.value.location} bersama kami!` },
+        { property: 'og:image', content: tripDetail.value.photos?.[0] },
+        { property: 'og:type', content: 'website' }
+      ]
+    })
+  }
+})
+
+const handleShare = async () => {
+  if (!tripDetail.value) return
+
+  const currentUrl = window.location.href
+  const startingPrice = tripDetail.value.packages?.[0]?.currentPrice || ''
+  
+  const shareText = `Cek perjalanan seru ini: *${tripDetail.value.title}*\nHarga mulai dari ${startingPrice}\n\nLihat detail selengkapnya di sini:`
+
+  try {
+    if (navigator.share) {
+      await navigator.share({
+        title: tripDetail.value.title,
+        text: shareText,
+        url: currentUrl,
+      })
+    } else {
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + currentUrl)}`
+      window.open(whatsappUrl, '_blank')
+    }
+  } catch (err) {
+    console.log('Gagal membagikan tautan:', err)
+  }
+}
 
 const handleDynamicDateSelection = (selectedDates) => {
   console.log('User memilih tanggal:', selectedDates)
