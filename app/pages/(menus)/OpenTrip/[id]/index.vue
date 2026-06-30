@@ -104,7 +104,7 @@
                 {{ pkg.currentPrice }} <span class="text-[10px] font-medium text-gray-500 font-normal">/ {{ pkg.priceUnit }}</span>
               </p>
             </div>
-            <button @click="router.push(`/opentrip/${tripDetail.id}/package`)" class="bg-[#145C34] text-white px-6 py-2 rounded-lg text-xs font-bold hover:bg-green-800 transition shadow-sm">
+            <button @click="router.push(`/opentrip/${tripDetail.id}/package/${pkg.id}`)" class="bg-[#145C34] text-white px-6 py-2 rounded-lg text-xs font-bold hover:bg-green-800 transition shadow-sm">
               Pilih
             </button>
           </div>

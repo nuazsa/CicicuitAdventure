@@ -190,65 +190,14 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 
-// --- Data Object Configuration untuk Open Trip Gede Pangrango ---
-const configData = ref({
-  package: {
-    titleOfTrip: 'Open Trip Gunung Gede Pangrango 2H1M',
-    titleOfPackage: 'Paket Jalur Cibodas (2H1M)',
-    basePrice: 395000,
-    durationDays: 2,
-    dateRange: '20 - 21 Desember 2026',
-    location: 'Bogor, Jawa Barat',
-    meetingPoint: 'Basecamp Cibodas',
-    includedFacilities: [
-      'Transport PP (Meeting Point - Basecamp)',
-      'Tiket Masuk & Asuransi (SIMAKSI)',
-      'Tenda Dome (1 Tenda untuk 4 Orang)',
-      'Makan 3x selama di gunung'
-    ]
-  },
-  meetingPoints: [
-    { id: 'cibodas', name: 'Basecamp Cibodas', price: 0 },
-    { id: 'bogor', name: 'Stasiun Bogor', price: 100000 },
-    { id: 'door2door', name: 'Penjemputan Door-to-Door (Khusus Jakarta)', price: 150000 }
-  ],
-  addons: [
-    {
-      id: 'sleepingBag',
-      title: 'Sewa Sleeping Bag (SB)',
-      price: 25000,
-      priceUnit: 'pax',
-      type: 'counter',
-      value: 0 
-    },
-    {
-      id: 'matras',
-      title: 'Sewa Matras Alumunium',
-      price: 15000,
-      priceUnit: 'pax',
-      type: 'counter',
-      value: 0
-    },
-    {
-      id: 'privateTent',
-      title: 'Upgrade Tenda Private (Hanya isi 2 org)',
-      price: 100000,
-      priceUnit: 'tenda',
-      type: 'counter',
-      value: 0
-    },
-    {
-      id: 'personalPorter',
-      title: 'Sewa Porter Pribadi (Maks 20kg)',
-      price: 350000,
-      priceUnit: 'hari',
-      type: 'counter',
-      value: 0
-    }
-  ],
-  noteText: 'Catatan: Pastikan membawa Kartu Identitas (KTP) asli pada hari-H untuk proses Simaksi. Jika tidak, pihak Taman Nasional berhak menolak.'
-})
+const route = useRoute()
+const config = useRuntimeConfig()
+const uuid = route.params.pkgId || route.params.pkgId
+
+const { data, pending, error } = await useFetch(`${config.public.apiBaseUrl}/services/${uuid}/detail`)
+const configData = computed(() => data.value || null)
 
 // --- State Variables ---
 const participantCount = ref(1)
@@ -306,7 +255,7 @@ const totalPrice = computed(() => {
     // Jika addon dihitung "per hari", kalikan durasi trip (contoh: porter pribadi)
     const multiplier = addon.priceUnit === 'hari' ? duration : 1
     
-    if (addon.type === 'counter' && addon.value > 0) {
+    if (addon.type === 'counter' &&  addon.value > 0) {
       total += (addon.price * addon.value) * multiplier
     } else if (addon.type === 'checkbox' && addon.value === true) {
       total += addon.price * multiplier
