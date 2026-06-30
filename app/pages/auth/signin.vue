@@ -128,6 +128,13 @@ const formLogin = ref({
   rememberMe: false
 })
 
+onMounted(() => {
+  if (route.query.error === 'google_failed') {
+    alert('Autentikasi Google dibatalkan atau gagal. Silakan coba lagi.')
+    router.replace('/auth/signin')
+  }
+})
+
 // --- Fungsi Submit Login ---
 const handleLogin = async () => {
   isLoading.value = true
@@ -168,7 +175,12 @@ const handleLogin = async () => {
 
 // --- Fungsi Login Pihak Ketiga (OAuth) ---
 const handleOAuth = (platform) => {
-  console.log(`Melakukan login via OAuth: ${platform}`)
-  // TODO: Integrasikan dengan fungsi signInWithOAuth
+  if (platform === 'Google') {
+    window.location.href = `${config.public.apiBaseUrl}/auth/google`
+  } else if (platform == 'Facebook') {
+    alert('Maaf, fitur belum tersedia')
+  } else {
+    console.log(`Melakukan login via OAuth: ${platform} belum diimplementasi`)
+  }
 }
 </script>

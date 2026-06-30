@@ -204,9 +204,21 @@ const handleRegister = async () => {
   }
 }
 
+onMounted(() => {
+  if (route.query.error === 'google_failed') {
+    alert('Autentikasi Google dibatalkan atau gagal. Silakan coba lagi.')
+    router.replace('/auth/signin')
+  }
+})
+
 // --- Fungsi Login Pihak Ketiga (OAuth) ---
 const handleOAuth = (platform) => {
-  console.log(`Melakukan pendaftaran/login via OAuth: ${platform}`)
-  // Hubungkan dengan provider OAuth (Supabase, Firebase, Auth0, dll.)
+  if (platform === 'Google') {
+    window.location.href = `${config.public.apiBaseUrl}/auth/google`
+  } else if (platform == 'Facebook') {
+    alert('Maaf, fitur belum tersedia')
+  } else {
+    console.log(`Melakukan login via OAuth: ${platform} belum diimplementasi`)
+  }
 }
 </script>
