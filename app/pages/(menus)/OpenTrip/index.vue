@@ -113,8 +113,7 @@ const config = useRuntimeConfig()
 const mountainList = ['Semua Gunung', 'Gunung Rinjani', 'Gunung Semeru',   'Gunung Prau']
 const activeCategory = ref('Semua Gunung')
 
-const { data, pending, error } = await useFetch('/services/explore', {
-  baseURL: config.public.apiBase,
+const { data, pending, error } = await useFetch(`${config.public.apiBaseUrl}/services/explore`, {
   query: {
     type: 'open-trip'
   }

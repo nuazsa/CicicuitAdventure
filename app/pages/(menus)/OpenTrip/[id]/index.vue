@@ -137,9 +137,7 @@ const isOpenTrip = ref(true)
 const participantCount = ref(1)
 const isGalleryOpen = ref(false)
 
-const { data, pending, error } = await useFetch(`/services/explore/${uuid}`, {
-  baseURL: config.public.apiBase,
-})
+const { data, pending, error } = await useFetch(`${config.public.apiBaseUrl}/services/explore/${uuid}`)
 const tripDetail = computed(() => data.value?.data || null)
 
 watchEffect(() => {
