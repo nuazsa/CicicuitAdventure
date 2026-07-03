@@ -1,88 +1,58 @@
 <template>
-  <MobileHeaderDefault title="Detail Pembayaran" backTo="/user/orders" />
-  
-  <div class="px-5 pt-6 pb-28">
-    <div class="bg-white rounded-xl p-5 shadow-sm text-center">
-      <i class="fa-solid fa-file-invoice-dollar text-4xl text-[#145C34] mb-3"></i>
-      <h2 class="text-lg font-bold text-gray-900 mb-1">Menunggu Pembayaran</h2>
-      <p class="text-xs text-gray-500 mb-4">Selesaikan pembayaran untuk pesanan <b>{{ $route.params.invoice }}</b></p>
-      
-      <button 
-        @click="payWithSnap"
-        class="w-full bg-[#145C34] text-white py-3 rounded-lg font-bold text-sm hover:bg-green-800 transition"
-      >
-        Lanjutkan Pembayaran
-      </button>
-    </div>
-  </div>
+  <NuxtPage />
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useHead, useRuntimeConfig } from '#imports'
-// Import middleware autentikasi Anda jika perlu
+import { useFetch, useRuntimeConfig, useCookie } from '#imports'
+import authCustomer from '~/middleware/auth-customer'
+
+// Terapkan middleware otorisasi global di tingkat induk
+definePageMeta({
+  middleware: authCustomer
+})
 
 const route = useRoute()
 const router = useRouter()
 const config = useRuntimeConfig()
+const invoiceNumber = route.params.invoice
 
-// 1. Pindahkan suntikan script Midtrans ke halaman ini
-useHead({
-  script: [
-    {
-      src: 'https://app.sandbox.midtrans.com/snap/snap.js',
-      'data-client-key': config.public.midtransClientKey
+// Ambil token untuk Authorization
+const authCookie = useCookie('access_token')
+
+// Tembak API untuk mendapatkan detail pesanan (termasuk statusnya)
+const { data, pending, error } = await useFetch(`${config.public.apiBaseUrl}/orders/checkout/{{packageuuid}}`, {
+  headers: {
+    'Authorization': `Bearer ${authCookie.value}`,
+    'Accept': 'application/json'
+  }
+})
+
+// Logika Pengalihan Berdasarkan Status
+watchEffect(() => {
+  // Tunggu hingga data siap
+  if (!pending.value && data.value?.data) {
+    const orderStatus = data.value.data.status // Misal: 'PENDING' atau 'CONFIRMED'
+
+    // Logika Pengalihan
+    if (orderStatus === 'CONFIRMED') {
+      // Jika status sudah confirmed, paksa alihkan ke rute /ticket
+      router.replace(`/orders/${invoiceNumber}/ticket`)
+    } else if (orderStatus === 'PENDING') {
+      // Jika status tertunda, pengguna sudah berada di halaman Invoice yang benar (induk/index)
+      // router.replace(`/orders/${invoiceNumber}`) // Tidak perlu karena kita sudah di rute /orders/invoice
+    } else {
+      // Handle status lain (contoh: 'CANCELED' atau 'EXPIRED')
+      console.error('Status pesanan tidak dikenal:', orderStatus)
+      // router.replace('/order/error')
     }
-  ]
+  }
 })
 
-// 2. Fungsi untuk memanggil Snap
-const payWithSnap = () => {
-  // Ambil token dari query URL (atau Anda bisa fetch ulang dari API jika tidak ada di URL)
-  const token = route.query.token 
-
-  if (!token) {
-    alert('Token pembayaran tidak ditemukan. Silakan muat ulang (refresh) halaman.')
-    return
-  }
-
-  if (window.snap) {
-    window.snap.pay(token, {
-      onSuccess: function (result) {
-        console.log('Sukses:', result)
-        // Redirect ke halaman sukses dan bersihkan query URL
-        router.replace(`/orders/success?invoice=${route.params.invoice}`)
-      },
-      onPending: function (result) {
-        console.log('Pending:', result)
-        // User menutup snap tapi statusnya pending (misal pilih VA tapi belum bayar)
-      },
-      onError: function (result) {
-        console.log('Gagal:', result)
-        alert('Pembayaran gagal.')
-      },
-      onClose: function () {
-        console.log('Snap ditutup tanpa menyelesaikan pembayaran')
-        // Karena user sudah berada di halaman invoice, biarkan saja mereka di sini.
-        // Jika mereka berubah pikiran, tinggal klik tombol "Lanjutkan Pembayaran" lagi.
-        
-        // Opsional: Bersihkan parameter 'autoplay' dari URL agar jika di-refresh tidak langsung muncul lagi
-        router.replace({ query: { token: route.query.token } }) 
-      }
-    })
-  } else {
-    alert('Sistem pembayaran sedang dimuat, silakan tunggu sebentar lalu coba lagi.')
-  }
+// Jika terjadi error dari API
+if (error.value) {
+  console.error('Error memuat pesanan:', error.value)
+  // router.replace('/orders/not-found')
 }
-
-// 3. Auto-play Snap saat halaman baru terbuka
-onMounted(() => {
-  if (route.query.autoplay === 'true' && route.query.token) {
-    // Beri sedikit jeda agar script Midtrans selesai dimuat oleh browser
-    setTimeout(() => {
-      payWithSnap()
-    }, 500)
-  }
-})
 </script>
