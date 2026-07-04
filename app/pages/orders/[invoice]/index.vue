@@ -13,8 +13,18 @@
   <div v-else class="flex flex-col p-5 gap-2 mt-2">
     
     <div class="bg-white px-5 py-8 flex flex-col items-center justify-center text-center shadow-sm rounded-xl">
-      <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-3 border border-orange-100">
-        <i class="fa-regular fa-clock text-3xl text-[#F58220]"></i>
+      <div 
+        class="w-16 h-16 rounded-full flex items-center justify-center mb-3 border transition-colors duration-300"
+        :class="orderData.status === 'PENDING' 
+          ? 'bg-orange-50 border-orange-100' 
+          : 'bg-green-50 border-green-100'"
+      >
+        <i 
+          class="fa-solid text-3xl transition-colors duration-300"
+          :class="orderData.status === 'PENDING' 
+            ? 'fa-clock text-[#F58220]' 
+            : 'fa-circle-check text-[#145C34]'"
+        ></i>
       </div>
       <h2 class="text-lg font-extrabold" :class="orderData.status === 'PENDING' ? 'text-gray-900' : 'text-[#145C34]'">
         {{ orderData.status === 'PENDING' ? 'Menunggu Pembayaran' : 'Pembayaran Berhasil' }}
@@ -22,8 +32,13 @@
       <p v-if="orderData.status === 'PENDING'" class="text-[12px] text-gray-500 mt-1 max-w-[250px] mx-auto leading-relaxed">
         Selesaikan pembayaran Anda agar kursi perjalanan segera diamankan.
       </p>
-      
-      <div class="mt-5 text-[28px] font-black text-[#145C34] tracking-tight">
+      <p v-else class="text-[12px] text-gray-500 mt-1">
+        Terima kasih telah bergabung dengan Cicicuit Adventure!
+      </p>
+      <div 
+        class="mt-5 text-[28px] font-black tracking-tight transition-colors duration-300"
+        :class="orderData.status === 'PENDING' ? 'text-[#F58220]' : 'text-[#145C34]'"
+      >
         {{ formatRupiah(orderData.grossAmount) }}
       </div>
       <div class="mt-1 flex items-center gap-1.5 justify-center bg-gray-50 px-3 py-1 rounded-full border border-gray-100 ">
@@ -108,13 +123,17 @@
       Nanti Saja
     </button>
     <button 
-      @click="payWithSnap"
-      :disabled="orderData.status !== 'PENDING' || isProcessingSnap"
+      @click="handleButtonClick"
+      :disabled="isProcessingSnap"
       class="flex-1 py-3 rounded-xl text-[13px] font-bold transition shadow-sm flex items-center justify-center gap-2"
-      :class="(orderData.status === 'PENDING' && !isProcessingSnap) ? 'bg-[#145C34] text-white hover:bg-green-800' : 'bg-gray-300 text-gray-500 cursor-not-allowed'"
-    >
+      :class="[
+        isProcessingSnap ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 
+        orderData.status === 'PENDING' ? 'bg-[#F58220] text-white hover:bg-orange-600' : 'bg-[#145C34] text-white hover:bg-green-800'
+      ]">
+
       <i v-if="isProcessingSnap" class="fa-solid fa-circle-notch fa-spin"></i>
-      {{ orderData.status === 'PENDING' ? 'Lanjutkan Pembayaran' : 'Sudah Dibayar' }}
+      <span v-else-if="orderData.status === 'PENDING'">Lanjutkan Pembayaran</span>
+      <span v-else>Lihat Tiket</span>
     </button>
   </div>
 </template>
@@ -171,6 +190,13 @@ const orderData = computed(() => {
     serviceType: formattedServiceType
   }
 })
+const handleButtonClick = () => {
+  if (orderData.value?.status === 'PENDING') {
+    payWithSnap()
+  } else {
+    router.push(`/orders/${invoiceNumber}/ticket`)
+  }
+}
 
 // 4. Logika Midtrans Snap
 const payWithSnap = () => {
