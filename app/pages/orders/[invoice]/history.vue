@@ -1,5 +1,5 @@
 <template>
-  <MobileHeaderDefault title="Riwayat Pesanan" hideSearch />
+  <MobileHeaderDefault title="Riwayat Pesanan" backTo="/orders" hideSearch />
 
   <!-- Detail Pesanan -->
   <div class="mx-5 mt-5 bg-white rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden flex flex-col relative z-10">
