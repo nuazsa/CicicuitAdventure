@@ -1,8 +1,14 @@
 <template>
   <MobileHeaderDefault title="Riwayat Pesanan" backTo="/orders" hideSearch />
 
-  <!-- Detail Pesanan -->
-  <div class="mx-5 mt-5 bg-white rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden flex flex-col relative z-10">
+  <div v-if="error || sortedHistoryData.length === 0" class="flex flex-col items-center justify-center min-h-[70vh] px-5 text-center">
+    <i class="fa-solid fa-clock-rotate-left text-4xl text-gray-400 mb-3"></i>
+    <h2 class="text-sm font-bold text-gray-800 mb-1">Belum Ada Riwayat</h2>
+    <p class="text-xs text-gray-500">Riwayat status pesanan tidak ditemukan atau terjadi kesalahan server.</p>
+  </div>
+
+  <div v-else class="mx-5 mt-5 bg-white rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden flex flex-col relative z-10">
+    
     <div class="relative w-full h-32">
       <NuxtImg 
         :src="orderDetail.heroImage" 
@@ -23,10 +29,17 @@
       </div>
     </div>
 
-    <div class="px-5 pt-4 pb-4 flex justify-between items-end">
+    <div class="px-5 pt-4 pb-4 flex flex-col gap-3">
       <div>
         <p class="text-[10px] text-gray-500 font-medium mb-0.5">ID Pesanan</p>
         <p class="text-[14px] font-extrabold text-[#92400E]">{{ invoiceNumber }}</p>
+      </div>
+      
+      <div>
+        <p class="text-[10px] text-gray-500 font-medium mb-0.5">Pilihan Paket</p>
+        <p class="text-[13px] font-bold text-[#145C34]">
+          {{ orderDetail.titleOfPackage }}
+        </p>
       </div>
     </div>
 
@@ -90,60 +103,47 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-// import authCustomer from '~/middleware/auth-customer' 
+import { useFetch, useRuntimeConfig, useCookie } from '#imports'
+import authCustomer from '~/middleware/auth-customer' 
 
-// definePageMeta({ middleware: authCustomer })
+definePageMeta({ 
+  middleware: authCustomer 
+})
 
 const route = useRoute()
 const router = useRouter()
+const config = useRuntimeConfig()
 const invoiceNumber = route.params.invoice
 
-// --- Dummy Data (Gantikan dengan useFetch API backend saat sudah siap) ---
-const pending = ref(false)
-const error = ref(null)
+const authCookie = useCookie('access_token')
 
-// Mock Data Informasi Paket untuk Header Tiket
-const orderDetail = ref({
-  tripTitle: 'Open Trip Gunung Gede Pangrango',
-  heroImage: 'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=800&q=80',
-})
-
-// Mock Data History
-const rawHistory = ref({
-  data: [
-    {
-      status: 'CREATED',
-      title: 'Pesanan Dibuat',
-      description: 'Pesanan berhasil dibuat. Menunggu Anda menyelesaikan pembayaran.',
-      timestamp: '2026-07-04T10:00:00.000Z'
-    },
-    {
-      status: 'PENDING',
-      title: 'Menunggu Pembayaran',
-      description: 'Anda telah memilih metode pembayaran. Silakan selesaikan transaksi.',
-      timestamp: '2026-07-04T10:05:00.000Z'
-    },
-    {
-      status: 'PAID',
-      title: 'Pembayaran Berhasil',
-      description: 'Pembayaran Anda telah kami terima dan sedang diverifikasi oleh sistem.',
-      timestamp: '2026-07-04T10:15:23.000Z'
-    },
-    {
-      status: 'CONFIRMED',
-      title: 'E-Tiket Diterbitkan',
-      description: 'Pembayaran terverifikasi. E-Tiket Anda siap digunakan untuk perjalanan!',
-      timestamp: '2026-07-04T10:16:10.000Z'
-    }
-  ]
+// --- API Fetch ---
+const { data: rawHistory, pending, error } = await useFetch(`${config.public.apiBaseUrl}/orders/client/${invoiceNumber}/history`, {
+  headers: {
+    'Authorization': `Bearer ${authCookie.value}`,
+    'Accept': 'application/json'
+  }
 })
 
 // --- Computed Properties ---
 const historyData = computed(() => rawHistory.value?.data || [])
 
-// Urutkan data dari yang paling baru (descending)
+// Ambil Hero Image & Title secara dinamis dari item pertama yang dikirim API
+const orderDetail = computed(() => {
+  if (historyData.value.length === 0) {
+    return { tripTitle: 'Pesanan Saya', heroImage: '' }
+  }
+  // Ambil dari riwayat pertama (karena datanya konsisten)
+  const item = historyData.value[0]
+  return {
+    tripTitle: item.titleOfService || 'Pesanan Saya',
+    titleOfPackage: item.titleOfPackage || 'Paket Saya',
+    heroImage: item.heroImage || 'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=800&q=80'
+  }
+})
+
 const sortedHistoryData = computed(() => {
   return [...historyData.value].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
 })
@@ -152,7 +152,7 @@ const sortedHistoryData = computed(() => {
 const currentStatusStyle = computed(() => {
   if (sortedHistoryData.value.length === 0) return { label: '-', bgClass: 'bg-gray-500' }
   
-  const latestStatus = sortedHistoryData.value[0].status
+  const latestStatus = sortedHistoryData.value[0].status.toUpperCase()
   switch (latestStatus) {
     case 'PENDING':
     case 'CREATED':
@@ -172,7 +172,8 @@ const currentStatusStyle = computed(() => {
 
 // --- Utilities ---
 const getTimelineIconStyle = (status) => {
-  switch (status) {
+  const normalizedStatus = (status || '').toUpperCase()
+  switch (normalizedStatus) {
     case 'PAID':
     case 'CONFIRMED':
     case 'SUCCESS':
