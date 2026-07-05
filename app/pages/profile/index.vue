@@ -11,14 +11,15 @@
       <div class="w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden -mt-12 bg-gray-200 relative">
         <NuxtImg
           :src="profileData?.avatar_url || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200'" 
-          :alt="profileData?.fullname || 'Avatar Pengguna'" 
+          :alt="jwtFullname || profileData?.fullname || 'Avatar Pengguna'" 
           class="w-full h-full object-cover"
           format="webp"
           loading="lazy" 
         />
       </div>
 
-      <h2 class="text-xl font-extrabold text-[#114226] mt-3">{{ profileData?.fullname || 'Memuat...' }}</h2>
+      <h2 class="text-xl font-extrabold text-[#114226] mt-3">{{ jwtFullname || profileData?.fullname || 'Memuat...' }}</h2>
+      
       <div class="bg-gray-100 text-[#145C34] px-3 py-1.5 rounded-full text-[10px] font-bold mt-2 flex items-center gap-1.5 tracking-wide">
         <i class="fa-solid fa-star"></i> {{ profileInfo.user.membership }}
       </div>
@@ -82,14 +83,12 @@
   <MobileNavigationBottom />
 
   <div class="fixed inset-0 z-[100] flex justify-center items-end" v-if="isModalOpen">
-
     <transition name="fade" appear>
       <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeModal"></div>
     </transition>
 
     <transition name="slide-up" appear>
       <div class="relative w-full max-w-md bg-white rounded-t-3xl pt-3 pb-8 px-6 shadow-2xl z-10" @click.stop>
-
         <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-5"></div>
 
         <div class="flex justify-between items-center mb-6">
@@ -106,7 +105,6 @@
         </div>
 
         <div class="text-sm text-gray-600 mb-6">
-
           <div v-if="selectedMenu?.id === 1">
             <p class="mb-3">{{ profileInfo.contact.intro }}</p>
             <ul class="list-disc pl-5 space-y-2">
@@ -125,36 +123,56 @@
 
           <div v-else-if="selectedMenu?.id === 2" class="flex flex-col items-center text-center space-y-4">
             <NuxtImg :src="profileInfo.about.logo" alt="Logo Cicitcuit Adventure" class="w-60 h-auto object-contain" format="webp" />
-
             <p class="leading-relaxed" v-html="profileInfo.about.paragraph1"></p>
             <p class="leading-relaxed" v-html="profileInfo.about.paragraph2"></p>
             <p class="leading-relaxed italic text-[13px] text-gray-500 bg-[#E8F5E9]/50 p-3 rounded-lg border border-[#145C34]/10">
               {{ profileInfo.about.mission }}
             </p>
           </div>
-
         </div>
 
         <button @click="closeModal"
           class="w-full bg-[#145C34] text-white py-3.5 rounded-xl font-bold hover:bg-green-800 transition shadow-md shadow-green-900/20">
           Mengerti
         </button>
-
       </div>
     </transition>
-
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useCookie } from '#imports'
 import authCustomer from '~/middleware/auth-customer'
 
 definePageMeta({
   middleware: authCustomer
 })
 
+const authCookie = useCookie('access_token')
+
+const jwtFullname = computed(() => {
+  if (!authCookie.value) return ''
+  
+  try {
+    const base64Url = authCookie.value.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    )
+    const decoded = JSON.parse(jsonPayload)
+
+    return decoded.fullname || ''
+  } catch (err) {
+    return ''
+  }
+})
+
+// Sisanya biarkan sama seperti aslinya
 const { profileData, isProfileLoading, fetchProfile } = useProfile();
 
 onMounted(async () => {
@@ -243,7 +261,6 @@ const closeModal = () => {
 /* --- Transisi Modal (Slide Up dari Bawah) --- */
 .slide-up-enter-active,
 .slide-up-leave-active {
-  /* Menggunakan cubic-bezier agar akselerasi meluncur ke atasnya terlihat profesional seperti aplikasi iOS/Android */
   transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
