@@ -214,9 +214,10 @@ const config = useRuntimeConfig()
 const authCookie = useCookie('access_token')
 
 const uuid = route.params.pkgId
+const initialQty = Number(route.query.qty) || 1
 
 // --- State Variables ---
-const participantCount = ref(1)
+const participantCount = ref(initialQty > 0 ? initialQty : 1)
 const isDropdownOpen = ref(false)
 const selectedMeetingPointId = ref('') 
 const isTosAgreed = ref(false)
