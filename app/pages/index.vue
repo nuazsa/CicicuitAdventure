@@ -2,10 +2,13 @@
   <!-- Header -->
   <div class="bg-[#145C34] pt-5 pb-2 px-5 rounded-none">
     <div class="flex justify-between items-center">
-      <!-- Logo -->
-      <h1 class="text-white text-xl font-bold tracking-wide">Cicitcuit Adventure</h1>
+      <div class="flex items-baseline gap-1.5">
+        <h1 class="text-white text-xl font-bold tracking-wide">Cicicuit Adventure</h1>
+        <span class="text-[8px] text-red-800 font-bold tracking-widest bg-white/20 px-1.5 py-0.5 rounded-full">
+          BETA Version
+        </span>
+      </div>
 
-      <!-- Notification Button -->
       <button
         class="bg-white/20 w-9 h-9 rounded-full text-white backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition">
         <i class="fa-regular fa-bell"></i>
@@ -56,7 +59,7 @@
             <i class="fa-solid fa-coins text-lg"></i>
           </div>
           <div>
-            <h3 class="text-sm font-bold text-gray-800">Cicitcuit Points</h3>
+            <h3 class="text-sm font-bold text-gray-800">Cicicuit Points</h3>
             <p class="text-[11px] text-gray-500">12.500 <span
                 class="text-[10px] font-normal text-gray-400">Poin</span></p>
           </div>
@@ -155,7 +158,8 @@
 
 <script setup>
 // --- Data & State ---
-const isRegistered = ref(false)
+const authCookie = useCookie('access_token')
+const isRegistered = computed(() => !!authCookie.value)
 
 // Data Menu Kategori 
 const menus = [

@@ -122,7 +122,7 @@
           </div>
 
           <div v-else-if="selectedMenu?.id === 2" class="flex flex-col items-center text-center space-y-4">
-            <NuxtImg :src="profileInfo.about.logo" alt="Logo Cicitcuit Adventure" class="w-60 h-auto object-contain" format="webp" />
+            <NuxtImg :src="profileInfo.about.logo" alt="Logo Cicicuit Adventure" class="w-60 h-auto object-contain" format="webp" />
             <p class="leading-relaxed" v-html="profileInfo.about.paragraph1"></p>
             <p class="leading-relaxed" v-html="profileInfo.about.paragraph2"></p>
             <p class="leading-relaxed italic text-[13px] text-gray-500 bg-[#E8F5E9]/50 p-3 rounded-lg border border-[#145C34]/10">
@@ -188,14 +188,14 @@ const profileInfo = ref({
     progressPercentage: 30
   },
   appInfo: {
-    appName: 'Cicitcuit Adventure App',
+    appName: 'Cicicuit Adventure App',
     version: '1.0.0',
     year: '2026',
     company: 'Outdoor Professional Services',
     developer: 'Nur Azis Saputra'
   },
   contact: {
-    intro: 'Punya pertanyaan atau kendala? Jangan khawatir, tim Cicitcuit Adventure siap membantu kamu! Segera hubungi kami via WhatsApp di nomor berikut:',
+    intro: 'Punya pertanyaan atau kendala? Jangan khawatir, tim Cicicuit Adventure siap membantu kamu! Segera hubungi kami via WhatsApp di nomor berikut:',
     general: {
       label: 'Info & Bantuan Umum:',
       phone: '+6281574749156',
@@ -203,13 +203,13 @@ const profileInfo = ref({
     },
     tech: {
       label: 'Bantuan IT/Teknis:',
-      phone: '+6282211551415',
-      link: 'https://wa.me/6282211551415'
+      phone: '+6289501475288',
+      link: 'https://wa.me/6289501475288'
     }
   },
   about: {
     logo: '/logo.svg',
-    paragraph1: '<strong class="text-[#145C34]">Cicitcuit Adventure</strong> adalah platform penyedia layanan pendakian gunung terintegrasi di Indonesia. Berdiri sejak tahun 2024, kami hadir untuk menjembatani para pendaki dengan tenaga profesional lokal secara mudah dan transparan.',
+    paragraph1: '<strong class="text-[#145C34]">Cicicuit Adventure</strong> adalah platform penyedia layanan pendakian gunung terintegrasi di Indonesia. Berdiri sejak tahun 2024, kami hadir untuk menjembatani para pendaki dengan tenaga profesional lokal secara mudah dan transparan.',
     paragraph2: 'Layanan utama kami mencakup penyewaan <strong>Porter</strong>, <strong>Guide</strong> bersertifikat, hingga pendaftaran <strong>Open Trip</strong> dan <strong>Private Trip</strong> ke berbagai gunung favorit seperti Rinjani, Semeru, Merbabu, dan banyak lagi.',
     mission: '"Misi kami adalah membuat setiap perjalanan pendakian Anda menjadi lebih aman, nyaman, dan tak terlupakan, sekaligus memberdayakan perekonomian masyarakat di sekitar basecamp." ⛰️✨'
   }

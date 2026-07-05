@@ -4,7 +4,7 @@
   <div class="p-6">
     <!-- Header -->
     <div class="flex flex-col items-center text-center mt-4 mb-6">
-      <NuxtImg src="/logo.svg" alt="Logo Cicitcuit Adventure" class="w-35 h-auto object-contain mb-3" format="webp" />
+      <NuxtImg src="/logo.svg" alt="Logo Cicicuit Adventure" class="w-35 h-auto object-contain mb-3" format="webp" />
       <h1 class="text-2xl font-extrabold text-gray-950 tracking-tight">Selamat Datang Kembali!</h1>
       <p class="text-xs text-gray-500 mt-1">Masuk untuk mengatur jadwal pendakianmu</p>
     </div>

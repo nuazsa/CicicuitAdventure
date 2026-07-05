@@ -121,7 +121,7 @@ const promoDetail = ref({
     <p>Yuk muncak santai akhir pekan di Gunung Rinjani! 🎉</p>
     <p>
       Nikmati diskon 20% untuk pendaftaran Open Trip Gunung Rinjani. Booking kuota trip kamu di 
-      <a href="#" class="text-[#145C34] underline decoration-2 underline-offset-2 hover:text-green-800">cicitcuit.id</a> sekarang sebelum kehabisan!
+      <a href="#" class="text-[#145C34] underline decoration-2 underline-offset-2 hover:text-green-800">cicicuit.id</a> sekarang sebelum kehabisan!
     </p>
   `,
   
