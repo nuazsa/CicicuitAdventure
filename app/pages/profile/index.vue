@@ -21,24 +21,24 @@
       <h2 class="text-xl font-extrabold text-[#114226] mt-3">{{ jwtFullname || profileData?.fullname || 'Memuat...' }}</h2>
       
       <div class="bg-gray-100 text-[#145C34] px-3 py-1.5 rounded-full text-[10px] font-bold mt-2 flex items-center gap-1.5 tracking-wide">
-        <i class="fa-solid fa-star"></i> {{ profileInfo.user.membership }}
+        <i class="fa-solid fa-star"></i> {{ profileData?.gamification?.membership || 'MEMBER' }}
       </div>
 
       <div class="w-full mt-5">
         <div class="flex justify-between text-[11px] font-bold text-gray-600 mb-2">
           <span>Level Progress</span>
-          <span class="text-[#145C34]">{{ profileInfo.user.points }} / {{ profileInfo.user.maxPoints }} Poin</span>
+          <span class="text-[#145C34]">{{ profileData?.gamification?.points || 0 }} / {{ profileData?.gamification?.maxPoints || 0 }} Poin</span>
         </div>
         <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
           <div 
-            class="bg-gradient-to-r from-[#145C34] to-[#4CAF50] h-full rounded-full"
-            :style="{ width: profileInfo.user.progressPercentage + '%' }"
+            class="bg-gradient-to-r from-[#145C34] to-[#4CAF50] h-full rounded-full transition-all duration-500 ease-out"
+            :style="{ width: (profileData?.gamification?.progressPercentage || 0) + '%' }"
           ></div>
         </div>
       </div>
 
-      <button class="mt-4 text-[12px] font-bold text-[#145C34] hover:text-green-700 transition">
-        Lihat Detail Poin & Keuntungan
+      <button @click="router.push('/profile/points')" class="mt-4 text-[12px] font-bold text-[#145C34] hover:text-green-700 transition">
+        Lihat Detail Poin & Keuntungan 
       </button>
     </div>
   </div>
@@ -152,6 +152,9 @@ definePageMeta({
 
 const authCookie = useCookie('access_token')
 
+// DEFINISIKAN ROUTER DI SINI
+const router = useRouter()
+
 const jwtFullname = computed(() => {
   if (!authCookie.value) return ''
   
@@ -172,7 +175,6 @@ const jwtFullname = computed(() => {
   }
 })
 
-// Sisanya biarkan sama seperti aslinya
 const { profileData, isProfileLoading, fetchProfile } = useProfile();
 
 onMounted(async () => {
@@ -181,12 +183,6 @@ onMounted(async () => {
 
 // --- Data Object Configuration ---
 const profileInfo = ref({
-  user: {
-    membership: 'ANGGOTA SILVER',
-    points: 150,
-    maxPoints: 500,
-    progressPercentage: 30
-  },
   appInfo: {
     appName: 'Cicicuit Adventure App',
     version: '1.0.0',
@@ -217,7 +213,8 @@ const profileInfo = ref({
 
 // --- Menu Data Configuration ---
 const mainMenus = [
-  { id: 1, label: 'Poin Saya', icon: 'fa-solid fa-wallet' },
+  // PATH DI TAMBAHKAN DI SINI UNTUK MENU PERTAMA
+  { id: 1, label: 'Poin Saya', icon: 'fa-solid fa-wallet', path: '/profile/points' },
   { id: 2, label: 'Refund Trip', icon: 'fa-solid fa-money-bill-transfer', badge: 2 },
   { id: 3, label: 'Voucher Saya', icon: 'fa-solid fa-ticket-simple' },
   { id: 4, label: 'Metode Bayar', icon: 'fa-solid fa-money-check-dollar' },
