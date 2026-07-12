@@ -15,8 +15,9 @@
     </button>
   </div>
 
-  <div v-else>
+  <div v-else class="pb-10">
     <div class="mx-5 mt-5 bg-white rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden flex flex-col relative z-10">
+      
       <div class="relative w-full h-48">
         <NuxtImg 
           :src="orderDetail.heroImage" 
@@ -52,7 +53,7 @@
 
       <div class="border-t border-gray-100 mx-5"></div>
 
-      <div class="px-5 pt-5 pb-6 grid grid-cols-2 gap-y-5 gap-x-4">
+      <div class="px-5 pt-5 pb-4 grid grid-cols-2 gap-y-5 gap-x-4">
         
         <div class="flex items-start gap-2.5">
           <i class="fa-regular fa-calendar text-[#6B7280] text-sm mt-0.5"></i>
@@ -93,7 +94,36 @@
             <p class="text-[12px] font-bold text-[#1F2937] mt-0.5">{{ orderDetail.titleOfPackage }}</p>
           </div>
         </div>
+
+        <div class="col-span-2 flex items-start gap-2.5 p-3 bg-gray-50 rounded-xl border border-gray-100">
+          <i class="fa-solid fa-location-dot text-[#145C34] text-sm mt-0.5"></i>
+          <div class="flex-1">
+            <p class="text-[10px] text-gray-500 font-medium mb-1">Titik & Waktu Kumpul</p>
+            <div class="flex justify-between items-center">
+              <p class="text-[12px] font-bold text-[#1F2937]">{{ orderDetail.meetingPointName || '-' }}</p>
+              <div class="bg-white px-2 py-0.5 rounded border border-gray-200 text-[11px] font-bold text-[#145C34]">
+                <i class="fa-regular fa-clock mr-1"></i> {{ orderDetail.meetingTime || '--:--' }}
+              </div>
+            </div>
+          </div>
+        </div>
         
+      </div>
+
+      <div v-if="orderDetail.addons && orderDetail.addons.length > 0" class="px-5 pb-6">
+        <div class="border-t border-gray-100 border-dashed pt-4">
+          <h3 class="text-[11px] font-bold text-gray-800 mb-3 flex items-center gap-1.5">
+            <i class="fa-solid fa-plus-circle text-[#F58220]"></i> Layanan Tambahan (Add-ons)
+          </h3>
+          <ul class="space-y-2.5">
+            <li v-for="(addon, idx) in orderDetail.addons" :key="idx" class="flex justify-between items-start">
+              <div>
+                <p class="text-[12px] font-semibold text-gray-700 leading-tight">{{ addon.addon_name }}</p>
+                <p class="text-[10px] text-gray-400 mt-0.5">Kuantitas: {{ addon.qty }}</p>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div class="relative flex items-center justify-center h-6 w-full">
@@ -143,8 +173,9 @@
         <h3 class="text-[13px] font-bold text-gray-900">Informasi Penting</h3>
       </div>
       <ul class="text-[11px] text-gray-600 space-y-2 pl-6 list-disc marker:text-gray-400">
-        <li>Tiba di titik kumpul paling lambat 30 menit sebelum waktu keberangkatan.</li>
+        <li>Tiba di titik kumpul paling lambat 30 menit sebelum waktu keberangkatan (Pukul {{ orderDetail.meetingTime || '--:--' }}).</li>
         <li>Bawa kartu identitas (KTP/SIM/Paspor) asli yang valid untuk proses verifikasi data.</li>
+        <li v-if="orderDetail.addons && orderDetail.addons.length > 0">Harap sampaikan/tunjukkan tiket ini kepada petugas untuk mengklaim layanan tambahan Anda (sewa alat, dll).</li>
         <li>Persiapkan kondisi fisik dan kesehatan Anda dengan baik untuk kelancaran pendakian.</li>
       </ul>
     </div>
@@ -185,18 +216,15 @@ const orderDetail = computed(() => {
   const rawStatus = (data.status || '').toUpperCase()
   
   // PROTEKSI HALAMAN:
-  // 1. Jika masih PENDING, tendang ke halaman tagihan (invoice)
   if (rawStatus === 'PENDING') {
     router.replace(`/orders/${invoiceNumber}`)
     return null
   }
-  // 2. Jika EXPIRED/CANCELED/FAILED, tendang ke halaman histori pesanan
   else if (['EXPIRED', 'CANCELED', 'FAILED'].includes(rawStatus)) {
     router.replace(`/orders/${invoiceNumber}/history`)
     return null
   }
 
-  // Jika aman (PAID/CONFIRMED/SUCCESS), format datanya
   const statusMapping = {
     'CONFIRMED': 'Terkonfirmasi',
     'SUCCESS': 'Berhasil',
@@ -204,7 +232,6 @@ const orderDetail = computed(() => {
     'COMPLETED': 'Selesai'
   }
 
-  // Ubah 'open-trip' menjadi 'Open Trip' agar cantik
   const formattedServiceType = data.serviceType 
     ? data.serviceType.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase()) 
     : 'Open Trip'
@@ -217,10 +244,14 @@ const orderDetail = computed(() => {
     heroImage: data.heroImage || 'https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=800&q=80', 
     orderId: data.invoiceNumber || invoiceNumber,
     issuedOn: formatDate(data.updatedAt || data.createdAt), 
-    dateRange: data.dateRange || '-', // Menggunakan dateRange siap pakai dari API
+    dateRange: data.dateRange || '-',
     qty: data.qty || 1,
     unit: data.unit || 'Pax',
-    mainParticipant: data.customerName || 'Peserta Setia' // Sesuaikan jika ada field nama pemesan di API
+    mainParticipant: data.customerName || 'Peserta Setia',
+    // --- Data Baru ---
+    meetingPointName: data.meetingPointName || '',
+    meetingTime: data.meetingTime || '',
+    addons: data.addons || []
   }
 })
 
@@ -249,27 +280,20 @@ const handleShare = async () => {
 
 const downloadTicket = async () => {
   isDownloading.value = true
-
   try {
     const response = await $fetch(`${config.public.apiBaseUrl}/orders/${invoiceNumber}/download`, {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${authCookie.value}`
-      },
+      headers: { 'Authorization': `Bearer ${authCookie.value}` },
       responseType: 'blob' 
     })
-
     const fileUrl = window.URL.createObjectURL(response)
     const link = document.createElement('a')
     link.href = fileUrl
     link.download = `E-Tiket_${orderDetail.value.orderId}.pdf` 
-    
     document.body.appendChild(link)
     link.click()
-    
     document.body.removeChild(link)
     window.URL.revokeObjectURL(fileUrl)
-
   } catch (err) {
     console.error('Gagal mengunduh tiket:', err)
     alert('Terjadi kesalahan saat mengunduh tiket dari server. Silakan coba lagi nanti.')
