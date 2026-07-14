@@ -84,7 +84,7 @@
             {{ trip.currentPrice }} <span class="text-[10px] font-medium text-gray-500">/ pax</span>
           </p>
         </div>
-        <button @click="() => $router.push(`/opentrip/${trip.uuid}`)" class="bg-[#F58220] text-white px-6 py-2 rounded-lg text-xs font-bold hover:bg-orange-600 transition shadow-[0_2px_8px_-2px_rgba(245,130,32,0.5)]">
+        <button @click="() => $router.push(`/open-trip/${trip.uuid}`)" class="bg-[#F58220] text-white px-6 py-2 rounded-lg text-xs font-bold hover:bg-orange-600 transition shadow-[0_2px_8px_-2px_rgba(245,130,32,0.5)]">
           Pilih
         </button>
       </div>

@@ -17,7 +17,7 @@
       <p class="text-xs text-gray-500 mt-1 max-w-[200px]">
         Saat ini tidak ada promo yang tersedia untuk kategori <span class="font-bold text-[#145C34]">"{{ activeCategory }}"</span>. Silakan cek kembali nanti!
       </p>
-      <button @click="router.push('/opentrip')" class="mt-4 text-[#145C34] text-xs font-bold hover:underline  ">
+      <button @click="router.push('/open-trip')" class="mt-4 text-[#145C34] text-xs font-bold hover:underline  ">
         Cari Trip Reguler
       </button>
     </div>

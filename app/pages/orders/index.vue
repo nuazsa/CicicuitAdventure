@@ -28,7 +28,7 @@
       <p class="text-xs text-gray-500 mt-1 max-w-[200px]">
         Anda tidak memiliki pesanan di daftar "{{ activeTab.label }}" saat ini.
       </p>
-      <button v-if="activeTab.id === 'pending'" @click="router.push('/opentrip')" class="mt-4 text-[#145C34] text-xs font-bold hover:underline">
+      <button v-if="activeTab.id === 'pending'" @click="router.push('/open-trip')" class="mt-4 text-[#145C34] text-xs font-bold hover:underline">
         Cari Petualangan
       </button>
     </div>

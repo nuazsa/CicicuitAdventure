@@ -1,7 +1,7 @@
 <template>
   <MobileHeaderInBanner 
     :title="tripDetail?.title" 
-    backTo="/opentrip" 
+    backTo="/open-trip" 
     @share="handleShare" 
   />
 
@@ -106,7 +106,7 @@
             </div>
             <button 
               @click="router.push({ 
-                path: `/opentrip/${tripDetail.id}/package/${pkg.id}`, 
+                path: `/open-trip/${tripDetail.id}/package/${pkg.id}`, 
                 query: { qty: participantCount } 
               })" 
               class="bg-[#145C34] text-white px-6 py-2 rounded-lg text-xs font-bold hover:bg-green-800 transition shadow-sm">
