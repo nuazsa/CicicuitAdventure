@@ -162,8 +162,8 @@
         {{ isDownloading ? 'Mengunduh...' : 'Unduh Tiket' }}
       </button>
       
-      <button @click="sendToEmail" class="w-full bg-white border-[1.5px] border-[#145C34] text-[#145C34] py-3.5 rounded-full text-[13px] font-bold flex items-center justify-center gap-2 hover:bg-green-50 transition active:scale-[0.98]">
-        <i class="fa-regular fa-envelope"></i> Kirim ke Email
+      <button @click="joinGroup" class="w-full bg-white border-[1.5px] border-[#25D366] text-[#25D366] py-3.5 rounded-full text-[13px] font-bold flex items-center justify-center gap-2 hover:bg-green-50 transition active:scale-[0.98]">
+        <i class="fa-brands fa-whatsapp text-lg"></i> Gabung ke Group
       </button>
     </div>
 
@@ -248,10 +248,10 @@ const orderDetail = computed(() => {
     qty: data.qty || 1,
     unit: data.unit || 'Pax',
     mainParticipant: data.customerName || 'Peserta Setia',
-    // --- Data Baru ---
     meetingPointName: data.meetingPointName || '',
     meetingTime: data.meetingTime || '',
-    addons: data.addons || []
+    addons: data.addons || [],
+    waGroup: data.wa_group || ''
   }
 })
 
@@ -302,8 +302,12 @@ const downloadTicket = async () => {
   }
 }
 
-const sendToEmail = () => {
-  alert('E-Tiket telah dikirim ulang ke alamat email terdaftar Anda.')
+const joinGroup = () => {
+  if (orderDetail.value?.waGroup) {
+    window.open(orderDetail.value.waGroup, '_blank')
+  } else {
+    alert('Tautan grup WhatsApp untuk trip ini belum tersedia.')
+  }
 }
 </script>
 

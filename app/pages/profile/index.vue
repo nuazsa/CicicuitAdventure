@@ -45,7 +45,7 @@
 
   <div class="px-5 mt-6">
     <div class="grid grid-cols-4 gap-3">
-      <div v-for="menu in mainMenus" :key="menu.id" @click="$router.push(menu.path)" 
+      <div v-for="menu in mainMenus" :key="menu.id" @click="menu.path ? $router.push(menu.path) : null" 
         class="bg-white rounded-2xl p-3 flex flex-col items-center text-center shadow-sm hover:shadow-md transition cursor-pointer relative group">
         <div v-if="menu.badge"
           class="absolute -top-1 -right-1 bg-[#EF6C00] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full z-10 border border-white">
@@ -152,7 +152,6 @@ definePageMeta({
 
 const authCookie = useCookie('access_token')
 
-// DEFINISIKAN ROUTER DI SINI
 const router = useRouter()
 
 const jwtFullname = computed(() => {
@@ -213,7 +212,6 @@ const profileInfo = ref({
 
 // --- Menu Data Configuration ---
 const mainMenus = [
-  // PATH DI TAMBAHKAN DI SINI UNTUK MENU PERTAMA
   { id: 1, label: 'Poin Saya', icon: 'fa-solid fa-wallet', path: '/profile/points' },
   { id: 2, label: 'Refund Trip', icon: 'fa-solid fa-money-bill-transfer', badge: 2 },
   { id: 3, label: 'Voucher Saya', icon: 'fa-solid fa-ticket-simple' },
@@ -221,7 +219,7 @@ const mainMenus = [
   { id: 5, label: 'Pesanan Saya', icon: 'fa-solid fa-file-invoice', path: '/orders' },
   { id: 6, label: 'Pengaturan Akun', icon: 'fa-solid fa-shield-halved', path: '/profile/setting' },
   { id: 7, label: 'Ulasan Trip Saya', icon: 'fa-solid fa-pen-to-square' },
-  { id: 8, label: 'Referensi Teman', icon: 'fa-solid fa-user-group' }
+  { id: 8, label: 'Daftar Gunung', icon: 'fa-solid fa-mountain', path: '/mountains' }
 ]
 
 const otherMenus = [
