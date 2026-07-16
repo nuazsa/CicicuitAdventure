@@ -4,48 +4,74 @@
   <div class="px-5 -mt-16 relative z-10">
     <div class="bg-white rounded-3xl p-5 shadow-sm flex flex-col items-center text-center relative">
       
-      <NuxtLink to="/profile/setting" class="absolute top-4 right-5 text-gray-400 hover:text-[#145C34] transition p-1">
+      <!-- Tombol Pengaturan (Hanya Tampil Jika Login) -->
+      <NuxtLink v-if="isLoggedIn" to="/profile/setting" class="absolute top-4 right-5 text-gray-400 hover:text-[#145C34] transition p-1">
         <i class="fa-solid fa-gear text-[20px]"></i>
       </NuxtLink>
 
-      <div class="w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden -mt-12 bg-gray-200 relative">
-        <NuxtImg
-          :src="profileData?.avatar_url || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200'" 
-          :alt="jwtFullname || profileData?.fullname || 'Avatar Pengguna'" 
-          class="w-full h-full object-cover"
-          format="webp"
-          loading="lazy" 
-        />
-      </div>
-
-      <h2 class="text-xl font-extrabold text-[#114226] mt-3">{{ jwtFullname || profileData?.fullname || 'Memuat...' }}</h2>
-      
-      <div class="bg-gray-100 text-[#145C34] px-3 py-1.5 rounded-full text-[10px] font-bold mt-2 flex items-center gap-1.5 tracking-wide">
-        <i class="fa-solid fa-star"></i> {{ profileData?.gamification?.membership || 'MEMBER' }}
-      </div>
-
-      <div class="w-full mt-5">
-        <div class="flex justify-between text-[11px] font-bold text-gray-600 mb-2">
-          <span>Level Progress</span>
-          <span class="text-[#145C34]">{{ profileData?.gamification?.points || 0 }} / {{ profileData?.gamification?.maxPoints || 0 }} Poin</span>
+      <!-- KONDISI 1: JIKA USER SUDAH LOGIN -->
+      <template v-if="isLoggedIn">
+        <div class="w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden -mt-12 bg-gray-200 relative">
+          <NuxtImg
+            :src="profileData?.avatar_url || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200'" 
+            :alt="jwtFullname || profileData?.fullname || 'Avatar Pengguna'" 
+            class="w-full h-full object-cover"
+            format="webp"
+            loading="lazy" 
+          />
         </div>
-        <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
-          <div 
-            class="bg-gradient-to-r from-[#145C34] to-[#4CAF50] h-full rounded-full transition-all duration-500 ease-out"
-            :style="{ width: (profileData?.gamification?.progressPercentage || 0) + '%' }"
-          ></div>
-        </div>
-      </div>
 
-      <button @click="router.push('/profile/points')" class="mt-4 text-[12px] font-bold text-[#145C34] hover:text-green-700 transition">
-        Lihat Detail Poin & Keuntungan 
-      </button>
+        <h2 class="text-xl font-extrabold text-[#114226] mt-3">{{ jwtFullname || profileData?.fullname || 'Memuat...' }}</h2>
+        
+        <div class="bg-gray-100 text-[#145C34] px-3 py-1.5 rounded-full text-[10px] font-bold mt-2 flex items-center gap-1.5 tracking-wide">
+          <i class="fa-solid fa-star"></i> {{ profileData?.gamification?.membership || 'MEMBER' }}
+        </div>
+
+        <div class="w-full mt-5">
+          <div class="flex justify-between text-[11px] font-bold text-gray-600 mb-2">
+            <span>Level Progress</span>
+            <span class="text-[#145C34]">{{ profileData?.gamification?.points || 0 }} / {{ profileData?.gamification?.maxPoints || 0 }} Poin</span>
+          </div>
+          <div class="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+            <div 
+              class="bg-gradient-to-r from-[#145C34] to-[#4CAF50] h-full rounded-full transition-all duration-500 ease-out"
+              :style="{ width: (profileData?.gamification?.progressPercentage || 0) + '%' }"
+            ></div>
+          </div>
+        </div>
+
+        <button @click="router.push('/profile/points')" class="mt-4 text-[12px] font-bold text-[#145C34] hover:text-green-700 transition">
+          Lihat Detail Poin & Keuntungan 
+        </button>
+      </template>
+
+      <!-- KONDISI 2: JIKA USER BELUM LOGIN (GUEST) -->
+      <template v-else>
+        <div class="w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden -mt-12 bg-gray-100 flex items-center justify-center relative">
+          <i class="fa-solid fa-user text-3xl text-gray-300"></i>
+        </div>
+
+        <h2 class="text-xl font-extrabold text-[#114226] mt-3">Halo, Petualang!</h2>
+        <p class="text-[11px] text-gray-500 mt-1 mb-5 leading-relaxed">
+          Masuk atau daftar sekarang untuk menikmati semua fitur Cicicuit Adventure.
+        </p>
+        
+        <div class="flex w-full gap-3 px-2">
+          <button @click="router.push('/auth/signin')" class="flex-1 py-2.5 bg-white border-[1.5px] border-[#145C34] text-[#145C34] rounded-xl text-xs font-bold hover:bg-green-50 transition active:scale-[0.98]">
+            Masuk
+          </button>
+          <button @click="router.push('/auth/signup')" class="flex-1 py-2.5 bg-[#145C34] text-white rounded-xl text-xs font-bold hover:bg-green-800 transition shadow-md shadow-green-900/20 active:scale-[0.98]">
+            Daftar
+          </button>
+        </div>
+      </template>
+
     </div>
   </div>
 
   <div class="px-5 mt-6">
     <div class="grid grid-cols-4 gap-3">
-      <div v-for="menu in mainMenus" :key="menu.id" @click="menu.path ? $router.push(menu.path) : null" 
+      <div v-for="menu in mainMenus" :key="menu.id" @click="handleMenuClick(menu.path)" 
         class="bg-white rounded-2xl p-3 flex flex-col items-center text-center shadow-sm hover:shadow-md transition cursor-pointer relative group">
         <div v-if="menu.badge"
           class="absolute -top-1 -right-1 bg-[#EF6C00] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full z-10 border border-white">
@@ -144,18 +170,20 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCookie } from '#imports'
-import authCustomer from '~/middleware/auth-customer'
 
-definePageMeta({
-  middleware: authCustomer
-})
+// PERUBAHAN: Middleware authCustomer dihapus agar bisa diakses tanpa login
+// definePageMeta({
+//   middleware: authCustomer
+// })
 
 const authCookie = useCookie('access_token')
-
 const router = useRouter()
 
+// Cek status login
+const isLoggedIn = computed(() => !!authCookie.value)
+
 const jwtFullname = computed(() => {
-  if (!authCookie.value) return ''
+  if (!isLoggedIn.value) return ''
   
   try {
     const base64Url = authCookie.value.split('.')[1]
@@ -177,8 +205,23 @@ const jwtFullname = computed(() => {
 const { profileData, isProfileLoading, fetchProfile } = useProfile();
 
 onMounted(async () => {
-  await fetchProfile()
+  // Hanya ambil data profile ke API jika user memang punya token (sudah login)
+  if (isLoggedIn.value) {
+    await fetchProfile()
+  }
 })
+
+// --- Handler Klik Menu ---
+const handleMenuClick = (path) => {
+  if (!path) return
+  
+  // Jika menu mengarah ke halaman yang butuh login (selain Daftar Gunung), dan user belum login
+  if (!isLoggedIn.value && path !== '/mountains') {
+    router.push('/auth/signin')
+  } else {
+    router.push(path)
+  }
+}
 
 // --- Data Object Configuration ---
 const profileInfo = ref({
@@ -213,12 +256,12 @@ const profileInfo = ref({
 // --- Menu Data Configuration ---
 const mainMenus = [
   { id: 1, label: 'Poin Saya', icon: 'fa-solid fa-wallet', path: '/profile/points' },
-  { id: 2, label: 'Refund Trip', icon: 'fa-solid fa-money-bill-transfer', badge: 2 },
-  { id: 3, label: 'Voucher Saya', icon: 'fa-solid fa-ticket-simple' },
-  { id: 4, label: 'Metode Bayar', icon: 'fa-solid fa-money-check-dollar' },
+  { id: 2, label: 'Refund Trip', icon: 'fa-solid fa-money-bill-transfer', badge: 2, path: '/refund' }, // (misal punya path)
+  { id: 3, label: 'Voucher Saya', icon: 'fa-solid fa-ticket-simple', path: '/voucher' },
+  { id: 4, label: 'Metode Bayar', icon: 'fa-solid fa-money-check-dollar', path: '/payment-methods' },
   { id: 5, label: 'Pesanan Saya', icon: 'fa-solid fa-file-invoice', path: '/orders' },
   { id: 6, label: 'Pengaturan Akun', icon: 'fa-solid fa-shield-halved', path: '/profile/setting' },
-  { id: 7, label: 'Ulasan Trip Saya', icon: 'fa-solid fa-pen-to-square' },
+  { id: 7, label: 'Ulasan Trip Saya', icon: 'fa-solid fa-pen-to-square', path: '/reviews' },
   { id: 8, label: 'Daftar Gunung', icon: 'fa-solid fa-mountain', path: '/mountains' }
 ]
 

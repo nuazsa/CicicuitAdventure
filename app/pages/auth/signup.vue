@@ -150,6 +150,7 @@ definePageMeta({
 })
 
 const router = useRouter()
+const route = useRoute()
 const config = useRuntimeConfig()
 
 // --- State Keamanan Form (Sembunyi/Lihat Password) ---

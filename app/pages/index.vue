@@ -189,7 +189,7 @@ const dashboardData = computed(() => rawDashboardData.value?.data || {
 const menus = [
   { title: 'Porter', icon: 'fa-solid fa-person-hiking', path: '/porter' },
   { title: 'Guide', icon: 'fa-regular fa-compass', path: '/guide' },
-  { title: 'Open Trip', icon: 'fa-solid fa-users', path: '/opentrip' },
+  { title: 'Open Trip', icon: 'fa-solid fa-users', path: '/open-trip' },
   { title: 'Private Trip', icon: 'fa-solid fa-van-shuttle', path: '/private-trip' }
 ]
 
