@@ -321,21 +321,48 @@ const handleAction = (order) => {
 }
 
 const getStatusStyle = (status) => {
-  switch (status) {
+  // Memastikan status selalu dibaca dalam huruf kapital
+  const safeStatus = (status || '').toUpperCase();
+
+  switch (safeStatus) {
     case 'PENDING':
-      return { text: 'MENUNGGU PEMBAYARAN', bgClass: 'bg-[#FFF3E0] text-[#E65100]', icon: 'fa-solid fa-circle-exclamation' }
+      return { 
+        text: 'MENUNGGU PEMBAYARAN', 
+        bgClass: 'bg-[#FFF3E0] text-[#E65100]', // Oranye - Perhatian
+        icon: 'fa-regular fa-clock' 
+      }
     case 'PAID':
-    case 'SUCCESS':
+      return { 
+        text: 'SUDAH LUNAS', 
+        bgClass: 'bg-[#E8F5E9] text-[#2E7D32]', // Hijau - Sukses/Aman
+        icon: 'fa-solid fa-check-to-slot' 
+      }
     case 'CONFIRMED':
-      return { text: 'SUDAH LUNAS', bgClass: 'bg-[#E8F5E9] text-[#2E7D32]', icon: 'fa-solid fa-circle-check' }
+      return { 
+        text: 'SUDAH CHECK-IN', 
+        bgClass: 'bg-blue-50 text-blue-600', // Biru - Status operasional/Sedang berlangsung
+        icon: 'fa-solid fa-user-check' 
+      }
+    case 'COMPLETED':
+      return { 
+        text: 'SELESAI', 
+        bgClass: 'bg-gray-100 text-gray-600', // Abu-abu gelap - Menandakan siklus telah selesai sepenuhnya
+        icon: 'fa-solid fa-flag-checkered' 
+      }
     case 'EXPIRED':
     case 'CANCELED':
-    case 'FAILED':
-      return { text: 'DIBATALKAN', bgClass: 'bg-red-50 text-red-600', icon: 'fa-solid fa-circle-xmark' }
-    case 'COMPLETED':
-      return { text: 'SELESAI', bgClass: 'bg-gray-100 text-gray-600', icon: 'fa-solid fa-flag-checkered' }
+    case 'FAILED': // Opsional, jaga-jaga jika ada payment failed
+      return { 
+        text: 'DIBATALKAN', 
+        bgClass: 'bg-red-50 text-red-600', // Merah - Berhenti/Gagal
+        icon: 'fa-solid fa-circle-xmark' 
+      }
     default:
-      return { text: status, bgClass: 'bg-gray-100 text-gray-500', icon: 'fa-solid fa-info-circle' }
+      return { 
+        text: safeStatus || 'TIDAK DIKETAHUI', 
+        bgClass: 'bg-gray-50 text-gray-400', 
+        icon: 'fa-solid fa-circle-info' 
+      }
   }
 }
 
