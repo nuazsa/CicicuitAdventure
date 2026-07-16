@@ -38,8 +38,8 @@
     <div 
       v-else 
       v-for="mnt in mountains" 
-      :key="mnt.uuid"
-      @click="router.push(`/mountains/${mnt.uuid}`)"
+      :key="mnt.slug"
+      @click="router.push(`/mountains/${mnt.slug}`)"
       class="bg-white rounded-2xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100 flex flex-col gap-3 cursor-pointer hover:shadow-md transition active:scale-[0.98]"
     >
       <div class="flex gap-3 items-start">
