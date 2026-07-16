@@ -1,6 +1,6 @@
 <template>
   <!-- Header -->
-  <MobileHeaderDefault title="Detail Gunung" backTo="/mountains" hideSearch />
+  <MobileHeaderDefault title="Detail Gunung" backTo="/gunung" hideSearch />
 
   <!-- Loading State -->
   <div v-if="pending" class="flex flex-col items-center justify-center min-h-[60vh]">
@@ -13,7 +13,7 @@
     <i class="fa-solid fa-mountain-sun text-4xl text-gray-300 mb-3"></i>
     <h2 class="text-sm font-bold text-gray-800 mb-1">Gunung Tidak Ditemukan</h2>
     <p class="text-xs text-gray-500">Data gunung yang Anda cari tidak tersedia atau mungkin sudah dihapus.</p>
-    <button @click="router.push('/mountains')" class="mt-4 px-5 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-700 shadow-sm">
+    <button @click="router.push('/gunung')" class="mt-4 px-5 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-700 shadow-sm">
       Kembali ke Daftar Gunung
     </button>
   </div>
@@ -159,10 +159,10 @@ const route = useRoute()
 const config = useRuntimeConfig()
 const authCookie = useCookie('access_token')
 
-const mountainId = route.params.id // Atau route.params.uuid tergantung nama file dynamic route Anda
+const mountainSlug = route.params.slug
 
 // Fetch Data Detail Gunung
-const { data, pending, error } = await useFetch(`${config.public.apiBaseUrl}/mountains/${mountainId}`, {
+const { data, pending, error } = await useFetch(`${config.public.apiBaseUrl}/mountains/${mountainSlug}`, {
   headers: {
     'Authorization': authCookie.value ? `Bearer ${authCookie.value}` : '',
     'Accept': 'application/json'

@@ -216,7 +216,7 @@ const handleMenuClick = (path) => {
   if (!path) return
   
   // Jika menu mengarah ke halaman yang butuh login (selain Daftar Gunung), dan user belum login
-  if (!isLoggedIn.value && path !== '/mountains') {
+  if (!isLoggedIn.value && path !== '/gunung') {
     router.push('/auth/signin')
   } else {
     router.push(path)
@@ -262,7 +262,7 @@ const mainMenus = [
   { id: 5, label: 'Pesanan Saya', icon: 'fa-solid fa-file-invoice', path: '/orders' },
   { id: 6, label: 'Pengaturan Akun', icon: 'fa-solid fa-shield-halved', path: '/profile/setting' },
   { id: 7, label: 'Ulasan Trip Saya', icon: 'fa-solid fa-pen-to-square', path: '/reviews' },
-  { id: 8, label: 'Daftar Gunung', icon: 'fa-solid fa-mountain', path: '/mountains' }
+  { id: 8, label: 'Daftar Gunung', icon: 'fa-solid fa-mountain', path: '/gunung' }
 ]
 
 const otherMenus = [
