@@ -2,8 +2,12 @@
   <!-- Header -->
   <MobileHeaderDefault title="Open Trip" backTo="/" />
 
-  <!-- Category Filters -->
-  <MobileFilterCategory :listCategory="mountainList" :activeCategory="activeCategory" />
+  <!-- Category Filters (Reusable Component) -->
+  <MobileFilterCategory 
+    :listCategory="filteredMountainList" 
+    :activeCategory="activeCategorySlug"
+    @update:activeCategory="handleCategoryChange"
+  />
 
   <!-- Trip List -->
   <div class="px-5 flex flex-col gap-4 mt-2">
@@ -72,7 +76,7 @@
       <!-- Layanan -->
       <div class="flex flex-wrap gap-1.5 mb-4">
         <div v-for="service in trip.services" :key="service.name" 
-              class="bg-[#F7F8FA] border border-gray-100 px-2.5 py-1.5 rounded-[6px] text-[10px] font-medium text-gray-600 flex items-center gap-1.5">
+             class="bg-[#F7F8FA] border border-gray-100 px-2.5 py-1.5 rounded-[6px] text-[10px] font-medium text-gray-600 flex items-center gap-1.5">
            {{ service.icon}} {{ service.name }}
         </div>
       </div>
@@ -109,17 +113,37 @@
 
 <script setup>
 const config = useRuntimeConfig()
+const route = useRoute()
+const router = useRouter()
 
-const mountainList = ['Semua Gunung', 'Gunung Rinjani', 'Gunung Semeru',   'Gunung Prau']
-const activeCategory = ref('Semua Gunung')
+const activeCategorySlug = computed(() => {
+  return route.query.gunung || ''
+})
+
+const handleCategoryChange = (slug) => {
+  if (!slug) {
+    router.push({ path: route.path })
+  } else {
+    router.push({ path: route.path, query: { gunung: slug } })
+  }
+}
 
 const { data, pending, error } = await useFetch(`${config.public.apiBaseUrl}/services/explore`, {
-  query: {
-    type: 'open-trip'
-  }
+  query: computed(() => ({
+    type: 'open-trip',
+    mountain: activeCategorySlug.value || undefined
+  }))
 })
 
 const tripList = computed(() => data.value?.tripList || [])
+
+const filteredMountainList = computed(() => {
+  const apiMountains = data.value?.filter?.mountain || []
+  return [
+    { name: 'Semua Gunung', slug: '' },
+    ...apiMountains
+  ]
+})
 
 if (error.value) {
   console.error('Data Service tidak ditemukan:', error.value)

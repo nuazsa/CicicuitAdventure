@@ -68,12 +68,28 @@
   </div>
 
   <div class="grid grid-cols-4 gap-4 px-5 mt-4">
-    <div v-for="menu in menus" :key="menu.title" @click="() => $router.push(menu.path)" class="flex flex-col items-center gap-2 cursor-pointer group">
+    <div 
+      v-for="menu in menus" 
+      :key="menu.title" 
+      @click="menu.isLocked ? null : $router.push(menu.path)" 
+      class="flex flex-col items-center gap-2 group"
+      :class="menu.isLocked ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'"
+    >
       <div
-        class="w-14 h-14 bg-gray-200/80 rounded-full flex items-center justify-center text-[#145C34] group-hover:bg-gray-200 transition">
-        <i :class="menu.icon" class="text-lg"></i>
+        class="w-14 h-14 rounded-full flex items-center justify-center transition"
+        :class="menu.isLocked ? 'bg-gray-100 text-gray-400' : 'bg-gray-200/80 text-[#145C34] group-hover:bg-gray-200'"
+      >
+        <!-- Ubah icon jika isLocked true -->
+        <i :class="menu.isLocked ? 'fa-solid fa-lock' : menu.icon" class="text-lg"></i>
       </div>
-      <span class="text-[11px] font-medium text-gray-700 text-center leading-tight">{{ menu.title }}</span>
+      
+      <!-- Sesuaikan warna teks -->
+      <span 
+        class="text-[11px] font-medium text-center leading-tight"
+        :class="menu.isLocked ? 'text-gray-400' : 'text-gray-700'"
+      >
+        {{ menu.title }}
+      </span>
     </div>
   </div>
 
@@ -187,10 +203,10 @@ const dashboardData = computed(() => rawDashboardData.value?.data || {
 
 // --- Data Menu Kategori ---
 const menus = [
-  // { title: 'Porter', icon: 'fa-solid fa-person-hiking', path: '/porter' },
-  // { title: 'Guide', icon: 'fa-regular fa-compass', path: '/guide' },
-  { title: 'Open Trip', icon: 'fa-solid fa-users', path: '/open-trip' },
-  // { title: 'Private Trip', icon: 'fa-solid fa-van-shuttle', path: '/private-trip' }
+  { title: 'Porter', icon: 'fa-solid fa-person-hiking', path: '/porter', isLocked: true },
+  { title: 'Guide', icon: 'fa-regular fa-compass', path: '/guide', isLocked: true },
+  { title: 'Open Trip', icon: 'fa-solid fa-users', path: '/open-trip', isLocked: false },
+  { title: 'Private Trip', icon: 'fa-solid fa-van-shuttle', path: '/private-trip', isLocked: true }
 ]
 
 // --- Utilitas Format Angka ---
