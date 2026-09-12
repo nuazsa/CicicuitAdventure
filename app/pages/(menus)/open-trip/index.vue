@@ -8,7 +8,7 @@
   <!-- Trip List -->
   <div class="px-5 flex flex-col gap-4 mt-2">
     <!-- Filter by Category -->
-    <div v-for="trip in tripList" :key="trip.uuid" class="bg-white rounded-2xl p-3 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100">
+    <div v-for="trip in tripList" :key="trip.slug" class="bg-white rounded-2xl p-3 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100">
       <!-- Image Gallery -->
       <div class="flex gap-1 h-36 mb-3 rounded-xl overflow-hidden relative">
         <div v-if="trip.badge" class="absolute top-2 left-2 text-white text-[10px] font-bold px-2 py-0.5 rounded z-10 shadow-sm" :style="{ backgroundColor: trip.badgeColor }">
@@ -84,7 +84,7 @@
             {{ trip.currentPrice }} <span class="text-[10px] font-medium text-gray-500">/ pax</span>
           </p>
         </div>
-        <button @click="() => $router.push(`/open-trip/${trip.uuid}`)" class="bg-[#F58220] text-white px-6 py-2 rounded-lg text-xs font-bold hover:bg-orange-600 transition shadow-[0_2px_8px_-2px_rgba(245,130,32,0.5)]">
+        <button @click="() => $router.push(`/open-trip/${trip.slug}`)" class="bg-[#F58220] text-white px-6 py-2 rounded-lg text-xs font-bold hover:bg-orange-600 transition shadow-[0_2px_8px_-2px_rgba(245,130,32,0.5)]">
           Pilih
         </button>
       </div>

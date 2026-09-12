@@ -136,13 +136,13 @@ import { useHead, useRuntimeConfig, useFetch } from '#imports'
 const router = useRouter()
 const route = useRoute()
 const config = useRuntimeConfig()
-const uuid = route.params.uuid || route.params.id
+const slug = route.params.slug || route.params.slug
 
 const isOpenTrip = ref(true) 
 const participantCount = ref(1)
 const isGalleryOpen = ref(false)
 
-const { data, pending, error } = await useFetch(`${config.public.apiBaseUrl}/services/explore/${uuid}`)
+const { data, pending, error } = await useFetch(`${config.public.apiBaseUrl}/services/explore/${slug}`)
 const tripDetail = computed(() => data.value?.data || null)
 
 watchEffect(() => {
