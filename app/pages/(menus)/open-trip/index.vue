@@ -9,9 +9,25 @@
     @update:activeCategory="handleCategoryChange"
   />
 
-  <!-- Trip List -->
-  <div class="px-5 flex flex-col gap-4 mt-2">
-    <!-- Filter by Category -->
+  <div v-if="pending" class="flex flex-col items-center justify-center py-24">
+    <i class="fa-solid fa-circle-notch fa-spin text-3xl text-[#145C34] mb-3"></i>
+    <p class="text-xs font-medium text-gray-500">Mencari trip terbaik...</p>
+  </div>
+
+  <div v-else-if="tripList.length === 0" class="flex flex-col items-center justify-center py-20 px-5 text-center">
+    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100">
+      <i class="fa-solid fa-mountain-sun text-2xl text-gray-300"></i>
+    </div>
+    <h3 class="text-[14px] font-bold text-gray-800">Trip Tidak Ditemukan</h3>
+    <p class="text-[11px] text-gray-500 mt-1 max-w-[250px] leading-relaxed">
+      Maaf, open trip untuk kategori atau kata kunci yang Anda cari belum tersedia saat ini.
+    </p>
+    <button v-if="activeCategorySlug || route.query.cari" @click="resetFilters" class="mt-5 bg-green-50 text-[#145C34] border border-green-100 px-5 py-2 rounded-full text-[11px] font-bold hover:bg-green-100 transition">
+      Tampilkan Semua Trip
+    </button>
+  </div>
+
+  <div v-else class="px-5 flex flex-col gap-4 mt-2 pb-24">
     <div v-for="trip in tripList" :key="trip.slug" class="bg-white rounded-2xl p-3 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100">
       <!-- Image Gallery -->
       <div class="flex gap-1 h-36 mb-3 rounded-xl overflow-hidden relative">
@@ -54,7 +70,7 @@
           </div>
         </div>
       </div>
-      <!-- Info trip -->
+      
       <div class="flex justify-between items-start mb-2.5 mt-1">
         <div>
           <h2 class="font-bold text-gray-800 text-[15px] leading-tight">{{ trip.title }}</h2>
@@ -73,14 +89,14 @@
           <i class="fa-solid fa-star text-[#F58220]"></i> {{ trip.rating }}
         </div>
       </div>
-      <!-- Layanan -->
+      
       <div class="flex flex-wrap gap-1.5 mb-4">
         <div v-for="service in trip.services" :key="service.name" 
              class="bg-[#F7F8FA] border border-gray-100 px-2.5 py-1.5 rounded-[6px] text-[10px] font-medium text-gray-600 flex items-center gap-1.5">
            {{ service.icon}} {{ service.name }}
         </div>
       </div>
-      <!-- Harga dan Tombol Pilih -->
+      
       <div class="flex justify-between items-end border-t border-gray-100 border-dashed pt-3.5">
         <div>
           <p v-if="trip.strikethroughPrice" class="text-[10px] text-gray-400 line-through mb-0.5">{{ trip.strikethroughPrice }}</p>
@@ -121,17 +137,26 @@ const activeCategorySlug = computed(() => {
 })
 
 const handleCategoryChange = (slug) => {
-  if (!slug) {
-    router.push({ path: route.path })
+  const query = { ...route.query }
+  
+  if (slug) {
+    query.gunung = slug
   } else {
-    router.push({ path: route.path, query: { gunung: slug } })
+    delete query.gunung
   }
+  
+  router.push({ query })
+}
+
+const resetFilters = () => {
+  router.push({ path: route.path })
 }
 
 const { data, pending, error } = await useFetch(`${config.public.apiBaseUrl}/services/explore`, {
   query: computed(() => ({
     type: 'open-trip',
-    mountain: activeCategorySlug.value || undefined
+    mountain: activeCategorySlug.value || undefined,
+    search: route.query.cari || undefined
   }))
 })
 
