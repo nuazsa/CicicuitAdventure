@@ -256,11 +256,11 @@ const profileInfo = ref({
 // --- Menu Data Configuration ---
 const mainMenus = [
   { id: 1, label: 'Poin Saya', icon: 'fa-solid fa-wallet', path: '/profile/points' },
-  { id: 2, label: 'Refund Trip', icon: 'fa-solid fa-money-bill-transfer', badge: 2, path: '/refund' }, // (misal punya path)
-  { id: 3, label: 'Voucher Saya', icon: 'fa-solid fa-ticket-simple', path: '/voucher' },
+  // { id: 2, label: 'Refund Trip', icon: 'fa-solid fa-money-bill-transfer', badge: 2, path: '/refund' }, // (misal punya path)
+  // { id: 3, label: 'Voucher Saya', icon: 'fa-solid fa-ticket-simple', path: '/voucher' },
   { id: 4, label: 'Metode Bayar', icon: 'fa-solid fa-money-check-dollar', path: '/payment-methods' },
-  { id: 5, label: 'Pesanan Saya', icon: 'fa-solid fa-file-invoice', path: '/orders' },
-  { id: 6, label: 'Pengaturan Akun', icon: 'fa-solid fa-shield-halved', path: '/profile/setting' },
+  // { id: 5, label: 'Pesanan Saya', icon: 'fa-solid fa-file-invoice', path: '/orders' },
+  // { id: 6, label: 'Pengaturan Akun', icon: 'fa-solid fa-shield-halved', path: '/profile/setting' },
   { id: 7, label: 'Ulasan Trip Saya', icon: 'fa-solid fa-pen-to-square', path: '/reviews' },
   { id: 8, label: 'Daftar Gunung', icon: 'fa-solid fa-mountain', path: '/gunung' }
 ]

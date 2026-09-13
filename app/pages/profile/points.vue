@@ -70,6 +70,34 @@
       </div>
     </div>
 
+    <div class="px-5">
+      <h3 class="text-[14px] font-bold text-gray-900 mb-3">Tingkat Membership</h3>
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-4">
+        
+        <div v-for="tier in membershipTiers" :key="tier.id" class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div :class="['w-9 h-9 rounded-full flex items-center justify-center text-sm', tier.colorClass]">
+              <i :class="tier.icon"></i>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-[12px] font-bold text-gray-800">{{ tier.name }}</span>
+              <span 
+                v-if="gamificationData?.membership?.includes(tier.matchStr)" 
+                class="text-[9px] font-bold text-[#145C34] mt-0.5"
+              >
+                <i class="fa-solid fa-circle-check mr-0.5"></i> Level Anda
+              </span>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-[12px] font-black text-gray-700">{{ tier.points }}</span>
+            <span class="text-[9px] font-medium text-gray-400 block -mt-1">Poin</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <div class="w-full h-2 bg-gray-100 my-1"></div>
 
     <div class="px-5 flex flex-col gap-3">
@@ -167,6 +195,13 @@ const isLoadingMore = ref(false)
 // Ref untuk Intersection Observer
 const scrollTrigger = ref(null)
 let observer = null
+
+const membershipTiers = [
+  { id: 'platinum', name: 'Platinum', points: '10.000+', icon: 'fa-solid fa-gem', colorClass: 'bg-blue-50 text-blue-500', matchStr: 'PLATINUM' },
+  { id: 'gold', name: 'Emas (Gold)', points: '5.000', icon: 'fa-solid fa-medal', colorClass: 'bg-yellow-50 text-yellow-500', matchStr: 'GOLD' },
+  { id: 'silver', name: 'Perak (Silver)', points: '1.000', icon: 'fa-solid fa-medal', colorClass: 'bg-gray-100 text-gray-500', matchStr: 'SILVER' },
+  { id: 'bronze', name: 'Perunggu (Bronze)', points: '0', icon: 'fa-solid fa-medal', colorClass: 'bg-orange-50 text-[#CD7F32]', matchStr: 'BRONZE' }
+]
 
 // --- INIT MOUNTED ---
 onMounted(async () => {

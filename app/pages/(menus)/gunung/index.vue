@@ -99,13 +99,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watchEffect } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRuntimeConfig, useCookie } from '#imports'
 // Jika halaman ini butuh login, buka comment di bawah:
 // import authCustomer from '~/middleware/auth-customer'
 // definePageMeta({ middleware: authCustomer })
 
+const route = useRoute()
 const router = useRouter()
 const config = useRuntimeConfig()
 const authCookie = useCookie('access_token')
@@ -141,10 +142,8 @@ onUnmounted(() => {
   if (observer) observer.disconnect()
 })
 
-watchEffect(() => {
-  if (scrollTrigger.value && observer) {
-    observer.observe(scrollTrigger.value)
-  }
+watch(() => route.query.cari, () => {
+  fetchMountains(false)
 })
 
 // --- API Call ---
@@ -161,10 +160,13 @@ const fetchMountains = async (isLoadMore = false) => {
   try {
     const query = new URLSearchParams({
       page: page.value,
-      limit: limit
-    }).toString()
+      limit: limit,
+    })
 
     const response = await $fetch(`${config.public.apiBaseUrl}/mountains?${query}`, {
+      query: {
+        search: route.query.cari || undefined
+      },
       headers: {
         'Authorization': authCookie.value ? `Bearer ${authCookie.value}` : '',
         'Accept': 'application/json'
