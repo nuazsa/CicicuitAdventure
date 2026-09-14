@@ -1,5 +1,4 @@
 <template>
-  <div>
   <MobileHeaderDefault title="Pengaturan Profil" backTo="/profile" hideSearch />
 
   <div class="px-5 pt-6 pb-10 flex flex-col gap-6">
@@ -35,57 +34,23 @@
       </div>
 
       <div class="space-y-1.5">
-        <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex justify-between items-center">
-          <span>Nomor WhatsApp</span>
-          <button 
-            type="button"
-            @click="toggleEditWhatsapp" 
-            class="text-[#F58220] hover:underline"
-          >
-            {{ isEditingWhatsapp ? 'Batal' : (formSetting.whatsapp ? 'Ubah Nomor' : 'Tambah Nomor') }}
-          </button>
+        <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider block">
+          Nomor WhatsApp
         </label>
         
-        <div class="relative flex gap-2">
-          <div class="relative flex-1">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-[14px] font-medium">+62</span>
-            <input 
-              v-model="formSetting.whatsapp"
-              type="text" 
-              inputmode="numeric"
-              oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-              :disabled="!isEditingWhatsapp"
-              placeholder="81234567890"
-              class="w-full border text-[14px] rounded-xl pl-12 pr-10 py-3 transition-colors focus:outline-none"
-              :class="!isEditingWhatsapp ? 'bg-gray-50 border-gray-200 text-gray-500' : 'bg-white border-[#145C34] ring-1 ring-[#145C34] text-gray-900'"
-            />
-            
-            <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center">
-              <i v-if="!isEditingWhatsapp && formSetting.whatsapp" class="fa-solid fa-circle-check text-[#145C34] text-lg"></i>
-              <i v-else-if="!isEditingWhatsapp" class="fa-solid fa-lock text-gray-300 text-sm"></i>
-            </div>
-          </div>
-
-          <button 
-            v-if="isEditingWhatsapp"
-            type="button"
-            @click="requestOtp"
-            :disabled="!formSetting.whatsapp || formSetting.whatsapp.length < 11"
-            class="px-4 rounded-xl text-[12px] font-bold transition shrink-0"
-            :class="!formSetting.whatsapp || formSetting.whatsapp.length < 11 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-[#145C34] text-white hover:bg-green-800'"
-          >
-            Verifikasi
-          </button>
+        <div class="relative">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-[14px] font-medium">+62</span>
+          <input 
+            v-model="formSetting.whatsapp"
+            type="text" 
+            inputmode="numeric"
+            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+            placeholder="81234567890"
+            class="w-full bg-white border border-gray-200 text-[14px] rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-[#145C34] focus:ring-1 focus:ring-[#145C34] transition-colors"
+          />
         </div>
-        
-        <p v-if="!isEditingWhatsapp && formSetting.whatsapp" class="text-[10px] text-[#145C34] font-medium mt-1">
-          <i class="fa-solid fa-shield-check mr-1"></i> Nomor telah terverifikasi
-        </p>
-        <p v-else-if="!isEditingWhatsapp && !formSetting.whatsapp" class="text-[10px] text-gray-400 font-medium mt-1">
-          Tambahkan nomor WhatsApp untuk memudahkan komunikasi dengan pihak basecamp.
-        </p>
-        <p v-if="isEditingWhatsapp" class="text-[10px] text-[#F58220] font-medium mt-1">
-          <i class="fa-solid fa-circle-exclamation mr-1"></i> Selesaikan verifikasi sebelum menyimpan profil.
+        <p v-if="formErrors.whatsapp" class="text-[10px] text-red-500 mt-1">
+          {{ formErrors.whatsapp[0] }}
         </p>
       </div>
 
@@ -155,60 +120,10 @@
     </div>
 
   </div>
-
-  <div class="fixed inset-0 z-[100] flex justify-center items-center px-4" v-if="showOtpModal">
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closeOtpModal"></div>
-    
-    <div class="relative w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl z-10 flex flex-col items-center text-center">
-      <div class="w-16 h-16 bg-[#E8F5E9] rounded-full flex items-center justify-center mb-4 shadow-sm border border-[#C8E6C9]">
-        <i class="fa-brands fa-whatsapp text-3xl text-[#25D366]"></i>
-      </div>
-      
-      <h3 class="text-xl font-bold text-gray-900 mb-1">Verifikasi Nomor</h3>
-      <p class="text-[13px] text-gray-500 mb-6">
-        Masukkan 6 digit kode yang dikirim ke <br/>
-        <strong class="text-gray-800">+62{{ formSetting.whatsapp }}</strong>
-      </p>
-
-      <div class="flex justify-center gap-2 w-full mb-6" @paste="handlePaste">
-        <input
-          v-for="(digit, index) in 6"
-          :key="index"
-          :ref="el => { if (el) otpInputs[index] = el }"
-          v-model="otpValues[index]"
-          type="text"
-          inputmode="numeric"
-          pattern="[0-9]*"
-          maxlength="1"
-          class="w-10 h-12 bg-gray-50 border border-gray-200 rounded-lg text-center text-lg font-bold text-gray-900 focus:outline-none focus:border-[#145C34] focus:bg-white focus:ring-1 focus:ring-[#145C34] transition-colors"
-          @input="handleOtpInput(index, $event)"
-          @keydown="handleOtpKeydown(index, $event)"
-        />
-      </div>
-
-      <div class="w-full flex gap-3">
-        <button 
-          @click="closeOtpModal"
-          class="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold text-[13px] hover:bg-gray-200 transition"
-        >
-          Batal
-        </button>
-        <button 
-          @click="submitOtp"
-          :disabled="!isOtpComplete"
-          class="flex-1 py-3 rounded-xl font-bold text-[13px] transition"
-          :class="isOtpComplete ? 'bg-[#145C34] text-white hover:bg-green-800' : 'bg-gray-300 text-gray-500 cursor-not-allowed'"
-        >
-          Verifikasi
-        </button>
-      </div>
-    </div>
-  </div>
-  </div>
 </template>
 
 <script setup>
-import { ref, computed, nextTick, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router' 
 import authCustomer from '~/middleware/auth-customer'
 
@@ -228,10 +143,9 @@ const formSetting = ref({
   birthdate: null,
   gender: null
 })
-const isEditingWhatsapp = ref(false)
-const originalWhatsapp = ref(null)
 
 const isSaving = ref(false)
+const formErrors = ref({})
 
 const syncDataToForm = () => {
   if (profileData.value) {
@@ -244,7 +158,6 @@ const syncDataToForm = () => {
         : null,
       gender: profileData.value.gender || null
     }
-    originalWhatsapp.value = profileData.value.whatsapp || null
   }
 }
 
@@ -276,79 +189,13 @@ const hasChanges = computed(() => {
 // --- LOGIKA TOMBOL SIMPAN AKTIF ---
 const isFormValidToSave = computed(() => {
   if (!formSetting.value.fullname || formSetting.value.fullname.trim() === '') return false
-  if (isEditingWhatsapp.value) return false
   return hasChanges.value
 })
-
-// --- TOGGLE WHATSAPP ---
-const toggleEditWhatsapp = () => {
-  if (isEditingWhatsapp.value) {
-    formSetting.value.whatsapp = originalWhatsapp.value
-    isEditingWhatsapp.value = false
-  } else {
-    isEditingWhatsapp.value = true
-  }
-}
-
-// --- LOGIKA MODAL OTP ---
-const showOtpModal = ref(false)
-const otpValues = ref(['', '', '', '', '', ''])
-const otpInputs = ref([])
-
-const isOtpComplete = computed(() => {
-  return otpValues.value.every(val => val !== '')
-})
-
-const requestOtp = () => {
-  if (!formSetting.value.whatsapp) return
-  showOtpModal.value = true
-  otpValues.value = ['', '', '', '', '', '']
-  nextTick(() => {
-    if (otpInputs.value[0]) otpInputs.value[0].focus()
-  })
-}
-
-const closeOtpModal = () => {
-  showOtpModal.value = false
-}
-
-const submitOtp = () => {
-  const finalCode = otpValues.value.join('')
-  console.log(`Verifikasi OTP: ${finalCode}`)
-  
-  isEditingWhatsapp.value = false
-  originalWhatsapp.value = formSetting.value.whatsapp 
-  showOtpModal.value = false
-}
-
-// --- INPUT OTP HANDLERS ---
-const handleOtpInput = (index, event) => {
-  let val = event.target.value.replace(/\D/g, '')
-  otpValues.value[index] = val.substring(0, 1)
-  if (val && index < 5) otpInputs.value[index + 1].focus()
-}
-
-const handleOtpKeydown = (index, event) => {
-  if (event.key === 'Backspace' && !otpValues.value[index] && index > 0) {
-    otpInputs.value[index - 1].focus()
-    otpValues.value[index - 1] = '' 
-  }
-}
-
-const handlePaste = (event) => {
-  event.preventDefault()
-  const pastedData = event.clipboardData.getData('text').replace(/\D/g, '').substring(0, 6)
-  if (pastedData) {
-    const chars = pastedData.split('')
-    for (let i = 0; i < chars.length; i++) otpValues.value[i] = chars[i]
-    const focusIndex = chars.length < 6 ? chars.length : 5
-    otpInputs.value[focusIndex].focus()
-  }
-}
 
 // --- FUNGSI SIMPAN ---
 const handleSaveProfile = async () => {
   isSaving.value = true;
+  formErrors.value = {};
   try {
     const payload = { ...formSetting.value }
 
@@ -366,8 +213,14 @@ const handleSaveProfile = async () => {
 
     await fetchProfile(true)
     syncDataToForm()
-  } catch (error) {
-    alert('Gagal menyimpan perubahan.')
+  }catch (error) {
+    // Tangkap struktur error validasi 400 dari backend
+    if (error.data && error.data.statusCode === 400 && typeof error.data.message === 'object') {
+      formErrors.value = error.data.message;
+    } else {
+      // Fallback jika error lain (misal: 500 server error)
+      alert(error.data?.message || 'Terjadi kesalahan saat menyimpan perubahan.');
+    }
   } finally {
     isSaving.value = false;
   }
