@@ -84,7 +84,19 @@
                   </template>
                 </ClientOnly>
               </div>
-              <p class="text-[11px] text-gray-500 leading-relaxed">{{ item.description }}</p>
+              <p class="text-[11px] text-gray-500 leading-relaxed">
+                {{ item.description }}
+                
+                <!-- Perbaikan link review: gunakan item.status dan invoiceNumber -->
+                <NuxtLink 
+                  v-if="item.status?.toUpperCase() === 'COMPLETED'" 
+                  :to="`/orders/${invoiceNumber}/review`"
+                  class="text-[#F58220] font-bold hover:underline ml-1 inline-block"
+                >
+                  (berikan review perjalanan anda)
+                </NuxtLink>
+              </p>
+
               <ClientOnly>
                 <p class="text-[10px] text-gray-400 mt-1.5 flex items-center gap-1">
                   <i class="fa-regular fa-calendar"></i> {{ formatDate(item.timestamp) }}
@@ -161,6 +173,8 @@ const currentStatusStyle = computed(() => {
     case 'CONFIRMED':
     case 'SUCCESS':
       return { label: 'Terkonfirmasi', bgClass: 'bg-[#145C34]' }
+    case 'COMPLETED':
+      return { label: 'Selesai', bgClass: 'bg-blue-600' }
     case 'CANCELED':
     case 'EXPIRED':
     case 'FAILED':
@@ -174,6 +188,8 @@ const currentStatusStyle = computed(() => {
 const getTimelineIconStyle = (status) => {
   const normalizedStatus = (status || '').toUpperCase()
   switch (normalizedStatus) {
+    case 'COMPLETED': 
+      return { bgPrimary: 'bg-blue-600' } // Biru
     case 'PAID':
     case 'CONFIRMED':
     case 'SUCCESS':
