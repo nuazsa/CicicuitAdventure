@@ -9,20 +9,28 @@
       <p class="text-[16px] font-bold text-gray-900">{{ invoiceId }}</p>
     </div>
 
+    <div v-if="isLoading" class="flex justify-center items-center py-10 bg-white rounded-2xl shadow-sm border border-gray-100">
+      <i class="fa-solid fa-circle-notch fa-spin text-2xl text-[#145C34]"></i>
+    </div>
+
     <!-- Form Review -->
-    <form @submit.prevent="handleSubmit" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-6">
+    <form v-else @submit.prevent="handleSubmit" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-6">
       
       <!-- Bintang 1-5 -->
       <div class="flex flex-col items-center gap-3">
-        <label class="text-[13px] font-bold text-gray-800">Bagaimana pengalaman Anda?</label>
-        <div class="flex gap-2" @mouseleave="hoverRating = 0">
+        <label class="text-[13px] font-bold text-gray-800">
+          {{ hasReviewed ? 'Ulasan Anda' : 'Bagaimana pengalaman Anda?' }}
+        </label>
+        <div class="flex gap-2" @mouseleave="!hasReviewed && (hoverRating = 0)">
           <button 
             v-for="star in 5" 
             :key="star"
             type="button"
-            @mouseover="hoverRating = star"
-            @click="rating = star"
-            class="focus:outline-none transition-transform hover:scale-110 active:scale-95"
+            :aria-label="`Beri rating ${star} bintang`"
+            @mouseover="!hasReviewed && (hoverRating = star)"
+            @click="!hasReviewed && (rating = star)"
+            class="focus:outline-none transition-transform"
+            :class="!hasReviewed ? 'hover:scale-110 active:scale-95 cursor-pointer' : 'cursor-default'"
           >
             <i 
               class="text-4xl transition-colors duration-200"
@@ -43,18 +51,30 @@
 
       <!-- Textarea Pesan -->
       <div class="space-y-2">
-        <label class="text-[12px] font-bold text-gray-700 block">Tuliskan ulasan Anda <span class="text-gray-400 font-normal">(Opsional)</span></label>
+        <label class="text-[12px] font-bold text-gray-700 block">
+          {{ hasReviewed ? 'Komentar ulasan' : 'Tuliskan ulasan Anda' }} 
+          <span v-if="!hasReviewed" class="text-gray-400 font-normal">(Opsional)</span>
+        </label>
         <textarea 
           v-model="message"
           rows="4"
+          maxlength="500"
+          :readonly="hasReviewed"
           placeholder="Ceritakan pengalaman Anda di sini..."
-          class="w-full bg-gray-50 border border-gray-200 text-[14px] rounded-xl px-4 py-3 focus:outline-none focus:border-[#145C34] focus:ring-1 focus:ring-[#145C34] focus:bg-white transition-colors resize-none"
+          class="w-full border border-gray-200 text-[14px] rounded-xl px-4 py-3 transition-colors resize-none"
+          :class="hasReviewed 
+            ? 'bg-gray-100 text-gray-600 focus:outline-none cursor-not-allowed' 
+            : 'bg-gray-50 focus:outline-none focus:border-[#145C34] focus:ring-1 focus:ring-[#145C34] focus:bg-white'"
         ></textarea>
-        <p class="text-[10px] text-gray-400 text-right">{{ message.length }}/500 karakter</p>
+        <!-- Hanya tampilkan perhitungan karakter jika belum di-review -->
+        <p v-if="!hasReviewed" class="text-[10px] text-right transition-colors" 
+           :class="message.length >= 500 ? 'text-red-500' : 'text-gray-400'">
+          {{ message.length }}/500 karakter
+        </p>
       </div>
 
-      <!-- Submit Button -->
       <button 
+        v-if="!hasReviewed"
         type="submit"
         :disabled="rating === 0 || isSubmitting"
         class="w-full mt-2 py-3.5 rounded-xl font-bold text-[14px] transition shadow-md flex justify-center items-center gap-2"
@@ -69,7 +89,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -77,15 +97,39 @@ const router = useRouter()
 const config = useRuntimeConfig()
 const token = useCookie('access_token')
 
-// Mengambil ID / Nomor Invoice dari URL params (dari nama folder [id])
 const invoiceId = route.params.invoice 
 
 const rating = ref(0)
 const hoverRating = ref(0)
 const message = ref('')
-const isSubmitting = ref(false)
 
-// Label dinamis berdasarkan bintang yang dipilih/di-hover
+const isSubmitting = ref(false)
+const isLoading = ref(true)
+const hasReviewed = ref(false)
+
+onMounted(async () => {
+  try {
+    const response = await $fetch(`${config.public.apiBaseUrl}/review/${invoiceId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token.value}`
+      }
+    })
+
+    // Jika response data tidak null, berarti sudah di-review
+    if (response.data) {
+      hasReviewed.value = true
+      rating.value = response.data.rating
+      message.value = response.data.review_text
+    }
+  } catch (error) {
+    console.error('Gagal memuat data ulasan:', error)
+  } finally {
+    isLoading.value = false
+  }
+})
+
+// Label dinamis
 const ratingLabel = computed(() => {
   const currentRating = hoverRating.value || rating.value
   switch (currentRating) {
@@ -98,7 +142,7 @@ const ratingLabel = computed(() => {
   }
 })
 
-// Warna text label mengikuti rating
+// Warna text label
 const ratingTextClass = computed(() => {
   const currentRating = hoverRating.value || rating.value
   if (currentRating === 0) return 'text-gray-400'
@@ -107,31 +151,28 @@ const ratingTextClass = computed(() => {
   return 'text-[#145C34]'
 })
 
-// Fungsi kirim data
 const handleSubmit = async () => {
-  if (rating.value === 0) return
+  if (rating.value === 0 || hasReviewed.value) return 
   
   isSubmitting.value = true
 
   try {
-    // Sesuaikan endpoint API Anda
-    await $fetch(`${config.public.apiBaseUrl}/orders/${invoiceId}/review`, {
+    await $fetch(`${config.public.apiBaseUrl}/review/${invoiceId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token.value}`
       },
       body: {
         rating: rating.value,
-        message: message.value
+        review_text: message.value
       }
     })
 
     alert('Terima kasih! Ulasan Anda berhasil dikirim.')
-    // Redirect kembali ke halaman detail order setelah sukses
-    router.push(`/orders/${invoiceId}`)
+    router.push(`/orders/${invoiceId}/history`)
     
   } catch (error) {
-    alert(error.data?.message || 'Gagal mengirim ulasan, silakan coba lagi.')
+    alert(error.data?.message || 'Gagal menyimpan ulasan, silakan coba lagi.')
   } finally {
     isSubmitting.value = false
   }
