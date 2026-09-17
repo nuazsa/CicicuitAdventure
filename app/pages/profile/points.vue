@@ -1,5 +1,5 @@
 <template>
-  <MobileHeaderDefault title="Poin & Keuntungan" backTo="/profile" hideSearch />
+  <MobileHeaderDefault title="Poin & Keuntungan" backTo="" hideSearch />
 
   <div v-if="isInitialLoading" class="flex flex-col items-center justify-center py-20">
     <i class="fa-solid fa-circle-notch fa-spin text-3xl text-[#145C34] mb-3"></i>

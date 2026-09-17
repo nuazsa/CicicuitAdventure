@@ -1,5 +1,5 @@
 <template>
-  <MobileHeaderDefault title="Konfigurasi Paket" :backTo="`/open-trip/${$route.params.id}`" />
+  <MobileHeaderDefault title="Konfigurasi Paket" backTo="" />
 
   <!-- Package Details -->
   <div class="px-5 flex flex-col gap-4 mt-2 mb-28">
