@@ -23,11 +23,21 @@
         </div>
       </div>
 
-      <div class="border-t border-gray-100 pt-3">
+      <div class="border-t border-gray-100 pt-3 mb-3">
         <p class="text-[12px] font-bold text-gray-800 mb-2">Fasilitas Termasuk:</p>
         <ul class="flex flex-col gap-2">
           <li v-for="(facility, index) in configData.package?.includedFacilities" :key="index" class="flex items-center gap-2 text-[12px] text-gray-600">
             <i class="fa-solid fa-circle-check text-[#145C34]"></i> {{ facility }}
+          </li>
+        </ul>
+      </div>
+
+      
+      <div class="border-t border-gray-100 pt-3">
+        <p class="text-[12px] font-bold text-gray-800 mb-2">Paket Termasuk:</p>
+        <ul class="flex flex-col gap-2">
+          <li v-for="(paket, index) in configData.package?.includedPackages" :key="index" class="flex items-center gap-2 text-[12px] text-gray-600">
+            <i class="fa-solid fa-circle-check text-[#145C34]"></i> {{ paket }}
           </li>
         </ul>
       </div>
