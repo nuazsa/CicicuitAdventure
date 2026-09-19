@@ -50,6 +50,69 @@
       </div>
     </div>
 
+    <div class="bg-white rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] flex flex-col gap-3 mb-4">
+      <div>
+        <h3 class="text-[13px] font-bold text-gray-900 mb-1">Gunakan Voucher</h3>
+        <p class="text-[10px] text-gray-500 leading-relaxed">Punya kode promo? Masukkan di sini untuk mendapat diskon.</p>
+      </div>
+      
+      <div class="flex items-start gap-2 relative">
+        <div class="relative w-full">
+          <!-- Ikon tiket di dalam input -->
+          <i class="fa-solid fa-ticket absolute left-3.5 top-3.5 text-[12px]"
+            :class="isVoucherApplied ? 'text-green-600' : voucherError ? 'text-red-500' : 'text-gray-400'">
+          </i>
+          
+          <!-- Input Field -->
+          <!-- Tambahkan @input="clearError" agar peringatan hilang saat user mulai mengetik ulang -->
+          <input 
+            v-model="voucherCode" 
+            @input="clearError"
+            :disabled="isVoucherApplied"
+            type="text" 
+            placeholder="Masukkan kode..." 
+            class="w-full text-[12px] font-medium rounded-xl pl-9 pr-4 py-3 focus:outline-none transition-all uppercase placeholder:normal-case placeholder:font-normal"
+            :class="[
+              isVoucherApplied 
+                ? 'border border-green-500 bg-green-50 text-green-700' 
+                : voucherError 
+                  ? 'border border-red-500 bg-red-50 text-red-600 focus:ring-1 focus:ring-red-500' 
+                  : 'border border-gray-200 bg-gray-50 text-gray-800 focus:border-[#145C34] focus:ring-1 focus:ring-[#145C34] focus:bg-white'
+            ]"
+          />
+          
+          <!-- Pesan Peringatan (Muncul jika kode salah) -->
+          <div v-if="voucherError" class="flex items-start gap-1.5 text-[10px] text-red-500 font-medium mt-2 px-1">
+            <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
+            <span>{{ voucherError }}</span>
+          </div>
+        </div>
+
+        <!-- Tombol Terapkan / Batal -->
+        <button 
+          v-if="!isVoucherApplied"
+          @click="applyVoucher" 
+          :disabled="!voucherCode"
+          class="bg-[#145C34] text-white text-[12px] font-bold px-4 py-3 rounded-xl hover:bg-green-800 transition shrink-0 disabled:bg-gray-300 disabled:cursor-not-allowed"
+        >
+          Terapkan
+        </button>
+        <button 
+          v-else
+          @click="removeVoucher" 
+          class="bg-red-50 text-red-500 border border-red-200 text-[12px] font-bold px-4 py-3 rounded-xl hover:bg-red-100 transition shrink-0"
+        >
+          Batalkan
+        </button>
+      </div>
+
+      <!-- Pesan Sukses (Muncul jika voucher berhasil diterapkan) -->
+      <div v-if="isVoucherApplied" class="flex items-center gap-1.5 text-[10px] text-green-600 font-medium bg-green-50 p-2.5 rounded-lg border border-green-100">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>Voucher berhasil digunakan! Anda berhemat Rp 50.000</span>
+      </div>
+    </div>
+
     <div 
       class="bg-white rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] relative transition-all duration-200"
       :class="isDropdownOpen ? 'z-50' : 'z-10'"
@@ -224,6 +287,11 @@ const isTosAgreed = ref(false)
 const isProcessingPayment = ref(false)
 const adminFee = 5000
 
+// --- State untuk Voucher ---
+const voucherCode = ref('')
+const isVoucherApplied = ref(false)
+const voucherError = ref('')
+
 const { data } = await useFetch(`${config.public.apiBaseUrl}/services/${uuid}/detail`)
 const configData = ref(null)
 
@@ -260,6 +328,38 @@ const handleSelectMeetingPoint = (id) => {
 const incrementParticipant = () => participantCount.value++
 const decrementParticipant = () => {
   if (participantCount.value > 1) participantCount.value--
+}
+
+// Fungsi untuk menerapkan voucher
+const applyVoucher = async () => {
+  if (!voucherCode.value) return
+
+  // Reset error sebelum mengecek
+  voucherError.value = ''
+
+  try {
+    // [SIMULASI API]: Ganti dengan endpoint NestJS Anda nanti
+    // const response = await $fetch('/api/voucher/validate', { method: 'POST', body: { code: voucherCode.value } })
+    
+    // Simulasi logika validasi: (Misal kode yang benar hanya "PROMO2026")
+    if (voucherCode.value.toUpperCase() !== 'SDFJKLWEF902Ss') {
+      // Jika kode tidak cocok, lemparkan error
+      throw new Error('Kode voucher tidak valid atau sudah tidak berlaku.')
+    }
+
+    // Jika berhasil
+    isVoucherApplied.value = true
+    
+  } catch (error) {
+    // Tangkap pesan error dan tampilkan di UI
+    voucherError.value = error.message || 'Terjadi kesalahan saat mengecek voucher.'
+  }
+}
+
+const clearError = () => {
+  if (voucherError.value) {
+    voucherError.value = ''
+  }
 }
 
 const incrementAddon = (addon) => {

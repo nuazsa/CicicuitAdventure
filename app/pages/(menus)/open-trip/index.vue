@@ -9,10 +9,11 @@
     @update:activeCategory="handleCategoryChange"
   />
 
-  <div v-if="pending" class="flex flex-col items-center justify-center py-24">
-    <i class="fa-solid fa-circle-notch fa-spin text-3xl text-[#145C34] mb-3"></i>
-    <p class="text-xs font-medium text-gray-500">Mencari trip terbaik...</p>
-  </div>
+  <UILoadingSpinner 
+    v-if="pending" 
+    text="Mencari trip terbaik..." 
+    paddingClass="py-24" 
+  />
 
   <div v-else-if="tripList.length === 0" class="flex flex-col items-center justify-center py-20 px-5 text-center">
     <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100">

@@ -36,20 +36,10 @@
       :topReview="tripDetail?.rating?.topReview"
     />
 
-    <div>
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-[15px] font-bold text-gray-800">Fasilitas Open Trip</h2>
-        <button class="text-[#145C34] text-[11px] font-bold hover:underline">Lihat Semua</button>
-      </div>
-      <div class="flex justify-between px-2">
-        <div v-for="facility in tripDetail?.facilities" :key="facility.name" class="flex flex-col items-center gap-2">
-          <div class="w-12 h-12 bg-white rounded-full shadow-sm border border-gray-100 flex items-center justify-center text-[#145C34]">
-            {{ facility.icon }}
-          </div>
-          <span class="text-[10px] font-medium text-gray-600">{{ facility.name }}</span>
-        </div>
-      </div>
-    </div>
+    <MobileFacilitiesExpandable 
+      title="Fasilitas yang Didapat" 
+      :facilities="tripDetail?.facilities || []" 
+    />
 
     <MobileCardSchedule
       v-model="participantCount"
