@@ -57,35 +57,49 @@
       </div>
       
       <div class="flex items-start gap-2 relative">
-        <div class="relative w-full">
-          <!-- Ikon tiket di dalam input -->
-          <i class="fa-solid fa-ticket absolute left-3.5 top-3.5 text-[12px]"
-            :class="isVoucherApplied ? 'text-green-600' : voucherError ? 'text-red-500' : 'text-gray-400'">
-          </i>
+        <!-- Bungkus kolom untuk memisahkan input dari pesan error di bawahnya -->
+        <div class="w-full flex flex-col">
           
-          <!-- Input Field -->
-          <!-- Tambahkan @input="clearError" agar peringatan hilang saat user mulai mengetik ulang -->
-          <input 
-            v-model="voucherCode" 
-            @input="clearError"
-            :disabled="isVoucherApplied"
-            type="text" 
-            placeholder="Masukkan kode..." 
-            class="w-full text-[12px] font-medium rounded-xl pl-9 pr-4 py-3 focus:outline-none transition-all uppercase placeholder:normal-case placeholder:font-normal"
-            :class="[
-              isVoucherApplied 
-                ? 'border border-green-500 bg-green-50 text-green-700' 
-                : voucherError 
-                  ? 'border border-red-500 bg-red-50 text-red-600 focus:ring-1 focus:ring-red-500' 
-                  : 'border border-gray-200 bg-gray-50 text-gray-800 focus:border-[#145C34] focus:ring-1 focus:ring-[#145C34] focus:bg-white'
-            ]"
-          />
+          <!-- 1. Kontainer Relative HANYA untuk Input dan Ikon -->
+          <div class="relative w-full">
+            <!-- Ikon tiket (Kiri) -->
+            <i class="fa-solid fa-ticket absolute left-3.5 top-1/2 -translate-y-1/2 text-[12px]"
+              :class="isVoucherApplied ? 'text-green-600' : voucherError ? 'text-red-500' : 'text-gray-400'">
+            </i>
+            
+            <!-- Input Field -->
+            <input 
+              v-model="voucherCode" 
+              @input="clearError"
+              :disabled="isVoucherApplied"
+              type="text" 
+              placeholder="Masukkan kode..." 
+              class="w-full text-[12px] font-medium rounded-xl pl-9 pr-10 py-3 focus:outline-none transition-all uppercase placeholder:normal-case placeholder:font-normal"
+              :class="[
+                isVoucherApplied 
+                  ? 'border border-green-500 bg-green-50 text-green-700' 
+                  : voucherError 
+                    ? 'border border-red-500 bg-red-50 text-red-600 focus:ring-1 focus:ring-red-500' 
+                    : 'border border-gray-200 bg-gray-50 text-gray-800 focus:border-[#145C34] focus:ring-1 focus:ring-[#145C34] focus:bg-white'
+              ]"
+            />
+            
+            <!-- Tombol X (Clear Text) -->
+            <button 
+              v-if="voucherCode && !isVoucherApplied" 
+              @click="clearVoucherText"
+              class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-gray-400 hover:text-gray-700 transition"
+            >
+              <i class="fa-solid fa-circle-xmark text-[14px]"></i>
+            </button>
+          </div>
           
-          <!-- Pesan Peringatan (Muncul jika kode salah) -->
+          <!-- 2. Pesan Peringatan diletakkan DI LUAR kontainer relative di atas -->
           <div v-if="voucherError" class="flex items-start gap-1.5 text-[10px] text-red-500 font-medium mt-2 px-1">
             <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
             <span>{{ voucherError }}</span>
           </div>
+          
         </div>
 
         <!-- Tombol Terapkan / Batal -->
@@ -234,8 +248,8 @@
         <div>
           <p class="text-[12px] text-gray-700 leading-relaxed select-none" @click="isTosAgreed = !isTosAgreed">
             Saya telah membaca dan menyetujui 
-            <NuxtLink :to="`/tos/${$route.params.id}`" @click.stop class="text-[#145C34] font-bold hover:underline">
-              Syarat dan Ketentuan
+            <NuxtLink :to="`/tos`" @click.stop class="text-[#145C34] font-bold hover:underline">
+              <u>Syarat dan Ketentuan</u>
             </NuxtLink> 
             serta kebijakan privasi yang berlaku untuk perjalanan ini.
           </p>
@@ -360,6 +374,11 @@ const clearError = () => {
   if (voucherError.value) {
     voucherError.value = ''
   }
+}
+
+const clearVoucherText = () => {
+  voucherCode.value = ''
+  voucherError.value = ''
 }
 
 const incrementAddon = (addon) => {

@@ -14,17 +14,18 @@
       </button>
     </div>
     
-    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-y-4 gap-x-2 px-2">
+    <div class="grid grid-cols-6 gap-y-4 gap-x-1 px-1">
       <div 
         v-for="facility in displayedFacilities" 
         :key="facility.name" 
-        class="flex flex-col items-center gap-2"
+        class="flex flex-col items-center gap-1.5"
       >
-        <div class="w-12 h-12 bg-white rounded-full shadow-sm border border-gray-100 flex items-center justify-center text-[#145C34]">
+        <!-- Ukuran w-10 h-10 (40px) lebih disarankan untuk 6 kolom di HP agar tidak berdesakan -->
+        <div class="w-10 h-10 bg-white rounded-full shadow-sm border border-gray-100 flex items-center justify-center text-[#145C34] text-[12px]">
           <i v-if="facility.icon.includes('fa-')" :class="facility.icon"></i>
           <span v-else>{{ facility.icon }}</span>
         </div>
-        <span class="text-[10px] font-medium text-gray-600 text-center leading-tight">
+        <span class="text-[9px] font-medium text-gray-600 text-center leading-tight">
           {{ facility.name }}
         </span>
       </div>
