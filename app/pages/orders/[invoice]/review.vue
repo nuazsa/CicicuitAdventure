@@ -130,8 +130,7 @@ const errorMessage = ref('') // State baru untuk menangkap pesan penolakan backe
 
 onMounted(async () => {
   try {
-    // [PENTING] Endpoint diubah menjadi /review/invoice/...
-    const response = await $fetch(`${config.public.apiBaseUrl}/review/invoice/${invoiceId}`, {
+    const response = await $fetch(`${config.public.apiBaseUrl}/review/${invoiceId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token.value}`
@@ -184,8 +183,7 @@ const handleSubmit = async () => {
   isSubmitting.value = true
 
   try {
-    // [PENTING] Endpoint diubah menjadi /review/invoice/...
-    await $fetch(`${config.public.apiBaseUrl}/review/invoice/${invoiceId}`, {
+    await $fetch(`${config.public.apiBaseUrl}/review/${invoiceId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token.value}`
