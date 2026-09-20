@@ -9,17 +9,35 @@
       <p class="text-[16px] font-bold text-gray-900">{{ invoiceId }}</p>
     </div>
 
+    <!-- Loading State -->
     <div v-if="isLoading" class="flex justify-center items-center py-10 bg-white rounded-2xl shadow-sm border border-gray-100">
       <i class="fa-solid fa-circle-notch fa-spin text-2xl text-[#145C34]"></i>
     </div>
 
+    <!-- Error State (Jika ditolak oleh backend sebelum merender form) -->
+    <div v-else-if="errorMessage" class="bg-red-50 p-6 rounded-2xl border border-red-100 flex flex-col items-center text-center gap-3">
+      <div class="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center text-xl mb-1">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 class="text-sm font-bold text-gray-900">Tidak Dapat Memuat Form</h3>
+      <p class="text-xs text-gray-600">{{ errorMessage }}</p>
+      <button @click="router.push(`/orders/${invoiceId}/history`)" class="mt-2 text-xs font-bold text-[#145C34] bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200">
+        Kembali
+      </button>
+    </div>
+
     <!-- Form Review -->
-    <form v-else @submit.prevent="handleSubmit" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-6">
+    <form v-else @submit.prevent="handleSubmit" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-6 relative overflow-hidden">
       
+      <!-- Badge Terima Kasih (Tampil jika sudah review) -->
+      <div v-if="hasReviewed" class="absolute top-0 left-0 w-full bg-[#E8F5E9] py-2 text-center border-b border-green-100">
+        <p class="text-[10px] font-bold text-[#145C34]"><i class="fa-solid fa-check-circle mr-1"></i> Ulasan sudah dikirim</p>
+      </div>
+
       <!-- Bintang 1-5 -->
-      <div class="flex flex-col items-center gap-3">
+      <div class="flex flex-col items-center gap-3" :class="hasReviewed ? 'mt-6' : ''">
         <label class="text-[13px] font-bold text-gray-800">
-          {{ hasReviewed ? 'Ulasan Anda' : 'Bagaimana pengalaman Anda?' }}
+          {{ hasReviewed ? 'Penilaian Anda' : 'Bagaimana pengalaman Anda?' }}
         </label>
         <div class="flex gap-2" @mouseleave="!hasReviewed && (hoverRating = 0)">
           <button 
@@ -52,7 +70,7 @@
       <!-- Textarea Pesan -->
       <div class="space-y-2">
         <label class="text-[12px] font-bold text-gray-700 block">
-          {{ hasReviewed ? 'Komentar ulasan' : 'Tuliskan ulasan Anda' }} 
+          {{ hasReviewed ? 'Komentar Anda' : 'Tuliskan ulasan Anda' }} 
           <span v-if="!hasReviewed" class="text-gray-400 font-normal">(Opsional)</span>
         </label>
         <textarea 
@@ -63,8 +81,8 @@
           placeholder="Ceritakan pengalaman Anda di sini..."
           class="w-full border border-gray-200 text-[14px] rounded-xl px-4 py-3 transition-colors resize-none"
           :class="hasReviewed 
-            ? 'bg-gray-100 text-gray-600 focus:outline-none cursor-not-allowed' 
-            : 'bg-gray-50 focus:outline-none focus:border-[#145C34] focus:ring-1 focus:ring-[#145C34] focus:bg-white'"
+            ? 'bg-gray-50 text-gray-600 focus:outline-none cursor-not-allowed' 
+            : 'bg-white focus:outline-none focus:border-[#145C34] focus:ring-1 focus:ring-[#145C34]'"
         ></textarea>
         <!-- Hanya tampilkan perhitungan karakter jika belum di-review -->
         <p v-if="!hasReviewed" class="text-[10px] text-right transition-colors" 
@@ -73,6 +91,7 @@
         </p>
       </div>
 
+      <!-- Submit Button -->
       <button 
         v-if="!hasReviewed"
         type="submit"
@@ -91,6 +110,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useRuntimeConfig, useCookie } from '#imports'
 
 const route = useRoute()
 const router = useRouter()
@@ -106,23 +126,30 @@ const message = ref('')
 const isSubmitting = ref(false)
 const isLoading = ref(true)
 const hasReviewed = ref(false)
+const errorMessage = ref('') // State baru untuk menangkap pesan penolakan backend
 
 onMounted(async () => {
   try {
-    const response = await $fetch(`${config.public.apiBaseUrl}/review/${invoiceId}`, {
+    // [PENTING] Endpoint diubah menjadi /review/invoice/...
+    const response = await $fetch(`${config.public.apiBaseUrl}/review/invoice/${invoiceId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token.value}`
       }
     })
 
-    // Jika response data tidak null, berarti sudah di-review
     if (response.data) {
       hasReviewed.value = true
       rating.value = response.data.rating
       message.value = response.data.review_text
     }
   } catch (error) {
+    // Tangkap error jika backend menolak (misal: Not Found atau Invalid Status)
+    if (error.data && error.data.message) {
+      errorMessage.value = error.data.message;
+    } else {
+      errorMessage.value = 'Gagal memuat data. Periksa koneksi internet Anda.';
+    }
     console.error('Gagal memuat data ulasan:', error)
   } finally {
     isLoading.value = false
@@ -157,7 +184,8 @@ const handleSubmit = async () => {
   isSubmitting.value = true
 
   try {
-    await $fetch(`${config.public.apiBaseUrl}/review/${invoiceId}`, {
+    // [PENTING] Endpoint diubah menjadi /review/invoice/...
+    await $fetch(`${config.public.apiBaseUrl}/review/invoice/${invoiceId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token.value}`
@@ -168,7 +196,7 @@ const handleSubmit = async () => {
       }
     })
 
-    alert('Terima kasih! Ulasan Anda berhasil dikirim.')
+    alert('Terima kasih! Ulasan Anda berhasil dikirim dan poin Anda bertambah.')
     router.push(`/orders/${invoiceId}/history`)
     
   } catch (error) {
