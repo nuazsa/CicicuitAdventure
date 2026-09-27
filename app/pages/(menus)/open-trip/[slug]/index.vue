@@ -30,6 +30,8 @@
     </div>
 
     <MobileCardRanting
+      v-if="tripDetail"
+      :slug="tripDetail?.slug"
       :score="tripDetail?.rating?.score" 
       :category="tripDetail?.rating?.category" 
       :reviewCount="tripDetail?.rating?.reviewCount" 
