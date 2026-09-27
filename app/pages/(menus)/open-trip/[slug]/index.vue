@@ -58,6 +58,11 @@
       :meetingTime="tripDetail?.hikingInfo?.meetingTime"
     />
 
+    <MobileCardGuestStar
+      v-if="tripDetail?.gueststars.length > 0"
+      :guestStars="tripDetail?.gueststars"
+    />
+
     <div class="flex flex-col gap-5">
       <h2 class="text-[15px] font-bold text-gray-800 -mb-1">Pilihan Paket Rute</h2>
       
