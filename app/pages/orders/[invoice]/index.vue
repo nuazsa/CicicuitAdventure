@@ -159,7 +159,7 @@ const isProcessingSnap = ref(false)
 useHead({
   script: [
     {
-      src: 'https://app.sandbox.midtrans.com/snap/snap.js',
+      src: 'https://app.midtrans.com/snap/snap.js',
       'data-client-key': config.public.midtransClientKey
     }
   ]
