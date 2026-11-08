@@ -93,11 +93,14 @@
     </div>
   </div>
 
-  <div class="mt-8" v-if="dashboardData?.promos?.length > 0">
+  <!-- SECTION PROMO -->
+  <div class="mt-8">
     <h2 class="text-base font-bold text-gray-800 mb-4 px-5 flex items-center gap-2">
       <span><i class="fa-solid fa-fire text-[#C62828]"></i></span> Promo yang wajib dicek!
     </h2>
-    <div ref="promoContainer" @mousedown="onMouseDown($event, $refs.promoContainer)" @mouseleave="onMouseLeave"
+    
+    <!-- Tampil jika ada data promo -->
+    <div v-if="dashboardData?.promos?.length > 0" ref="promoContainer" @mousedown="onMouseDown($event, $refs.promoContainer)" @mouseleave="onMouseLeave"
       @mouseup="onMouseUp" @mousemove="onMouseMove($event, $refs.promoContainer)"
       class="flex overflow-x-auto gap-4 px-5 pb-4 snap-x scrollbar-hide cursor-grab active:cursor-grabbing">
       
@@ -120,11 +123,20 @@
           </h3>
         </div>
       </div>
+    </div>
 
+    <!-- Tampil jika tidak ada promo (Empty State) -->
+    <div v-else class="px-5">
+      <div class="bg-gray-50 border border-dashed border-gray-200 rounded-2xl h-[150px] flex flex-col items-center justify-center text-center px-4">
+        <i class="fa-solid fa-ticket text-3xl text-gray-300 mb-2"></i>
+        <h3 class="text-sm font-semibold text-gray-500">Belum ada promo</h3>
+        <p class="text-xs text-gray-400 mt-1">Nantikan penawaran menarik dari kami segera!</p>
+      </div>
     </div>
   </div>
 
-  <div class="mt-4 pb-8" v-if="dashboardData?.recommendations?.length > 0">
+  <!-- SECTION REKOMENDASI -->
+  <div class="mt-4 pb-8">
     <h2 class="text-base font-bold text-gray-800 mb-4 px-5 flex items-center gap-2">
       <span>
         <i class="fa-solid fa-mountain text-[#145C34]"></i>
@@ -132,7 +144,8 @@
       Rekomendasi Trip & Layanan
     </h2>
 
-    <div ref="layananContainer" @mousedown="onMouseDown($event, $refs.layananContainer)" @mouseleave="onMouseLeave"
+    <!-- Tampil jika ada data rekomendasi -->
+    <div v-if="dashboardData?.recommendations?.length > 0" ref="layananContainer" @mousedown="onMouseDown($event, $refs.layananContainer)" @mouseleave="onMouseLeave"
       @mouseup="onMouseUp" @mousemove="onMouseMove($event, $refs.layananContainer)"
       class="flex overflow-x-auto overflow-y-hidden gap-4 px-5 scrollbar-hide pb-2 cursor-grab active:cursor-grabbing">
 
@@ -168,7 +181,15 @@
           </div>
         </div>
       </div>
+    </div>
 
+    <!-- Tampil jika tidak ada rekomendasi (Empty State) -->
+    <div v-else class="px-5">
+      <div class="bg-gray-50 border border-dashed border-gray-200 rounded-xl py-10 flex flex-col items-center justify-center text-center px-4">
+        <i class="fa-solid fa-mountain-sun text-4xl text-gray-300 mb-3"></i>
+        <h3 class="text-sm font-semibold text-gray-500">Belum ada rekomendasi</h3>
+        <p class="text-xs text-gray-400 mt-1">Coba gunakan fitur pencarian untuk menemukan destinasi impianmu.</p>
+      </div>
     </div>
   </div>
 
