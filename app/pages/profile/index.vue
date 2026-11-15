@@ -261,7 +261,7 @@ const mainMenus = [
   { id: 4, label: 'Metode Bayar', icon: 'fa-solid fa-money-check-dollar', path: '/payment-methods' },
   // { id: 5, label: 'Pesanan Saya', icon: 'fa-solid fa-file-invoice', path: '/orders' },
   // { id: 6, label: 'Pengaturan Akun', icon: 'fa-solid fa-shield-halved', path: '/profile/setting' },
-  { id: 7, label: 'Ulasan Trip Saya', icon: 'fa-solid fa-pen-to-square', path: '/reviews' },
+  { id: 7, label: 'Affiliate', icon: 'fa-solid fa-user-friends', path: '/affiliate' },
   { id: 8, label: 'Daftar Gunung', icon: 'fa-solid fa-mountain', path: '/gunung' }
 ]
 
