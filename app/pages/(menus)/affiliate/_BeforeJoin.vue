@@ -92,7 +92,7 @@ const errorMessage = ref('')
 const joinAffiliate = async () => {
   if (!authCookie.value) {
     errorMessage.value = 'Silakan login terlebih dahulu untuk bergabung.'
-    setTimeout(() => router.push('/auth/login'), 2000)
+    setTimeout(() => router.push('/auth/signin'), 2000)
     return
   }
 

@@ -162,7 +162,7 @@ const handleShare = async () => {
   if (!tripDetail.value) return
 
   const currentUrl = window.location.href
-  const startingPrice = tripDetail.value.packages?.[0]?.currentPrice || ''
+  const startingPrice = tripDetail.value?.packages?.reduce((min, pkg) => (+pkg.currentPrice.replace(/\D/g, '') < +min.replace(/\D/g, '') ? pkg.currentPrice : min), tripDetail.value?.packages?.[0]?.currentPrice || '') || '';
   
   const shareText = `Cek perjalanan seru ini: *${tripDetail.value.title}*\nHarga mulai dari ${startingPrice}\n\nLihat detail selengkapnya di sini:`
 
