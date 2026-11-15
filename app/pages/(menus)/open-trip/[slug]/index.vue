@@ -138,6 +138,8 @@ const slug = route.params.slug || route.params.slug
 const isOpenTrip = ref(true) 
 const participantCount = ref(1)
 const isGalleryOpen = ref(false)
+const authCookie = useCookie('access_token')
+const isSharing = ref(false)
 
 const { data, pending, error } = await useFetch(`${config.public.apiBaseUrl}/services/explore/${slug}`)
 const tripDetail = computed(() => data.value?.data || null)
@@ -159,10 +161,38 @@ watchEffect(() => {
 })
 
 const handleShare = async () => {
-  if (!tripDetail.value) return
+  if (!tripDetail.value || isSharing.value) return
 
-  const currentUrl = window.location.href
-  const startingPrice = tripDetail.value?.packages?.reduce((min, pkg) => (+pkg.currentPrice.replace(/\D/g, '') < +min.replace(/\D/g, '') ? pkg.currentPrice : min), tripDetail.value?.packages?.[0]?.currentPrice || '') || '';
+  isSharing.value = true
+  let shareUrl = window.location.href
+
+  if (authCookie.value) {
+    try {
+      const response = await $fetch(`${config.public.apiBaseUrl}/affiliate/share`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authCookie.value}`,
+          'Accept': 'application/json'
+        },
+        body: {
+          service_uuid: tripDetail.value.id
+        }
+      })
+
+      const shortCode = response?.data?.short_code || response?.short_code
+      
+      if (shortCode) {
+        shareUrl = `${window.location.origin}/af/${shortCode}`
+      }
+    } catch (err) {
+      console.warn('Menggunakan URL standar:', err?.data?.message || err.message)
+    }
+  }
+
+  const startingPrice = tripDetail.value?.packages?.reduce(
+    (min, pkg) => (+pkg.currentPrice.replace(/\D/g, '') < +min.replace(/\D/g, '') ? pkg.currentPrice : min), 
+    tripDetail.value?.packages?.[0]?.currentPrice || ''
+  ) || ''
   
   const shareText = `Cek perjalanan seru ini: *${tripDetail.value.title}*\nHarga mulai dari ${startingPrice}\n\nLihat detail selengkapnya di sini:`
 
@@ -171,14 +201,16 @@ const handleShare = async () => {
       await navigator.share({
         title: tripDetail.value.title,
         text: shareText,
-        url: currentUrl,
+        url: shareUrl,
       })
     } else {
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + currentUrl)}`
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`
       window.open(whatsappUrl, '_blank')
     }
   } catch (err) {
     console.log('Gagal membagikan tautan:', err)
+  } finally {
+    isSharing.value = false
   }
 }
 
