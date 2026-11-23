@@ -164,6 +164,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useCookie, useRuntimeConfig } from '#imports'
 
+const props = defineProps({
+  progressQuantity: {
+    type: Number,
+    default: 0
+  }
+})
+
 const config = useRuntimeConfig()
 const authCookie = useCookie('access_token')
 
@@ -178,9 +185,7 @@ const limit = 10
 const totalLinks = ref(0)
 
 const targetOrders = ref(10)
-const totalOrders = computed(() => {
-  return linkHistory.value.reduce((sum, item) => sum + Number(item.ordersCount || 0), 0)
-})
+const totalOrders = computed(() => Number(props.progressQuantity || 0))
 
 const progressPercentage = computed(() => {
   const percentage = (totalOrders.value / targetOrders.value) * 100
@@ -272,12 +277,12 @@ const fetchLinkHistory = async (isLoadMore = false) => {
       }
     })
 
-    const rows = Array.isArray(response?.data) 
-      ? response.data 
-      : Array.isArray(response?.data?.items) 
-        ? response.data.items 
-        : Array.isArray(response) 
-          ? response 
+    const rows = Array.isArray(response?.data)
+      ? response.data
+      : Array.isArray(response?.data?.items)
+        ? response.data.items
+        : Array.isArray(response)
+          ? response
           : []
 
     if (isLoadMore) {
@@ -324,6 +329,7 @@ const copyLink = async (item) => {
     console.error('Gagal menyalin link:', err)
   }
 }
+
 const getStatusBadge = (status) => {
   switch (status) {
     case 'COMPLETED':
