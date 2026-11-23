@@ -28,6 +28,8 @@
 const route = useRoute()
 const config = useRuntimeConfig()
 const code = route.params.code
+const authCookie = useCookie('access_token')
+const affCookie = useCookie('affiliate_code', { maxAge: 60 * 60 * 24 * 7 })
 
 const { data, pending, error } = await useFetch(`${config.public.apiBaseUrl}/affiliate/s/${code}`, {
   method: 'GET',
@@ -37,15 +39,37 @@ const { data, pending, error } = await useFetch(`${config.public.apiBaseUrl}/aff
   }
 })
 
+const recordAttribution = async (shortCode) => {
+  if (!authCookie.value || !shortCode) return
+
+  try {
+    await $fetch(`${config.public.apiBaseUrl}/affiliate/attribution`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${authCookie.value}`,
+        'Accept': 'application/json'
+      },
+      body: {
+        short_code: shortCode
+      }
+    })
+    affCookie.value = null
+  } catch (err) {
+    console.warn('Atribusi afiliasi dilewati:', err?.data?.message || err.message)
+  }
+}
+
 watchEffect(async () => {
   if (data.value) {
-    debugger
-    const result = data.value?.data
-    const affCookie = useCookie('affiliate_code', { maxAge: 60 * 60 * 24 * 7 })
+    const result = data.value?.data || data.value
     affCookie.value = code
 
-    const serviceType = result.service_type
-    const serviceSlug = result.service_slug
+    if (authCookie.value) {
+      await recordAttribution(code)
+    }
+
+    const serviceType = result.service_type || result.type || 'open-trip'
+    const serviceSlug = result.service_slug || result.slug
 
     if (serviceSlug) {
       await navigateTo(`/${serviceType}/${serviceSlug}`, { replace: true })
