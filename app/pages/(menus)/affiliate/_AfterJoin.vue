@@ -210,7 +210,7 @@ const usagePage = ref(1)
 const usageLimit = 10
 const totalUsage = ref(0)
 
-const targetOrders = ref(10)
+const targetOrders = ref(5)
 const totalOrders = computed(() => Number(props.progressQuantity || 0))
 
 const progressPercentage = computed(() => {
