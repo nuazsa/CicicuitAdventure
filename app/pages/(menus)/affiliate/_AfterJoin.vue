@@ -45,7 +45,7 @@
         class="flex-1 py-2 text-[11px] font-bold rounded-lg transition"
         :class="activeTab === 'usage' ? 'bg-white text-[#145C34] shadow-sm' : 'text-gray-500 hover:text-gray-700'"
       >
-        Riwayat Penggunaan
+        Riwayat Penggunaan ({{ totalUsage }})
       </button>
     </div>
 
@@ -103,59 +103,76 @@
         <button 
           v-if="hasMoreLinks"
           @click="loadMoreLinks"
-          :disabled="isLoadingMore"
+          :disabled="isLoadingMoreLinks"
           class="w-full py-2.5 bg-white border border-gray-200 rounded-xl text-[11px] font-bold text-gray-600 hover:bg-gray-50 transition flex items-center justify-center gap-2 mt-1"
         >
-          <i v-if="isLoadingMore" class="fa-solid fa-circle-notch fa-spin"></i>
-          {{ isLoadingMore ? 'Memuat...' : 'Muat Lebih Banyak' }}
+          <i v-if="isLoadingMoreLinks" class="fa-solid fa-circle-notch fa-spin"></i>
+          {{ isLoadingMoreLinks ? 'Memuat...' : 'Muat Lebih Banyak' }}
         </button>
       </template>
     </div>
 
     <!-- TAB 2: RIWAYAT PENGGUNAAN -->
     <div v-else class="flex flex-col gap-3">
-      <div v-if="usageHistory.length === 0" class="bg-white rounded-2xl p-8 text-center border border-gray-100">
+      <div v-if="isLoadingUsage" class="bg-white rounded-2xl p-10 text-center border border-gray-100">
+        <i class="fa-solid fa-circle-notch fa-spin text-2xl text-[#145C34] mb-2"></i>
+        <p class="text-[11px] text-gray-500">Memuat riwayat penggunaan...</p>
+      </div>
+
+      <div v-else-if="usageHistory.length === 0" class="bg-white rounded-2xl p-8 text-center border border-gray-100">
         <i class="fa-solid fa-clock-rotate-left text-2xl text-gray-300 mb-2"></i>
         <p class="text-xs font-bold text-gray-700">Belum Ada Riwayat Penggunaan</p>
         <p class="text-[10px] text-gray-400 mt-1">Riwayat order dari link afiliasimu dan penukaran reward akan muncul di sini.</p>
       </div>
 
-      <div 
-        v-for="log in usageHistory" 
-        :key="log.id" 
-        class="bg-white p-4 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100 flex items-start gap-3.5"
-      >
+      <template v-else>
         <div 
-          class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
-          :class="log.type === 'REDEEM' ? 'bg-orange-50 text-[#F58220]' : 'bg-green-50 text-[#145C34]'"
+          v-for="log in usageHistory" 
+          :key="log.id" 
+          class="bg-white p-4 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100 flex items-start gap-3.5"
         >
-          <i :class="log.type === 'REDEEM' ? 'fa-solid fa-gift text-base' : 'fa-solid fa-bag-shopping text-base'"></i>
-        </div>
-
-        <div class="flex-1 min-w-0">
-          <div class="flex justify-between items-start gap-2">
-            <h4 class="text-[12px] font-bold text-gray-800 leading-tight">{{ log.title }}</h4>
-            <span 
-              class="text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0"
-              :class="getStatusBadge(log.status)"
-            >
-              {{ log.statusLabel }}
-            </span>
+          <div 
+            class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
+            :class="log.type === 'REDEEM' ? 'bg-orange-50 text-[#F58220]' : 'bg-green-50 text-[#145C34]'"
+          >
+            <i :class="log.type === 'REDEEM' ? 'fa-solid fa-gift text-base' : 'fa-solid fa-bag-shopping text-base'"></i>
           </div>
 
-          <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">{{ log.description }}</p>
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-start gap-2">
+              <h4 class="text-[12px] font-bold text-gray-800 leading-tight">{{ log.title }}</h4>
+              <span 
+                class="text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0"
+                :class="getStatusBadge(log.status)"
+              >
+                {{ log.statusLabel || getDefaultStatusLabel(log.status) }}
+              </span>
+            </div>
 
-          <div class="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-50 text-[10px]">
-            <span class="text-gray-400">{{ log.date }}</span>
-            <span 
-              class="font-bold"
-              :class="log.type === 'REDEEM' ? 'text-[#F58220]' : 'text-[#145C34]'"
-            >
-              {{ log.type === 'REDEEM' ? `-${log.orderCount} Order` : `+${log.orderCount} Order` }}
-            </span>
+            <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">{{ log.description }}</p>
+
+            <div class="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-50 text-[10px]">
+              <span class="text-gray-400">{{ formatDateTime(log.date) }}</span>
+              <span 
+                class="font-bold"
+                :class="log.type === 'REDEEM' ? 'text-[#F58220]' : 'text-[#145C34]'"
+              >
+                {{ log.type === 'REDEEM' ? `-${log.orderCount} Order` : `+${log.orderCount} Order` }}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+
+        <button 
+          v-if="hasMoreUsage"
+          @click="loadMoreUsage"
+          :disabled="isLoadingMoreUsage"
+          class="w-full py-2.5 bg-white border border-gray-200 rounded-xl text-[11px] font-bold text-gray-600 hover:bg-gray-50 transition flex items-center justify-center gap-2 mt-1"
+        >
+          <i v-if="isLoadingMoreUsage" class="fa-solid fa-circle-notch fa-spin"></i>
+          {{ isLoadingMoreUsage ? 'Memuat...' : 'Muat Lebih Banyak' }}
+        </button>
+      </template>
     </div>
   </div>
 </template>
@@ -177,12 +194,21 @@ const authCookie = useCookie('access_token')
 const activeTab = ref('links')
 const copiedId = ref(null)
 
+// State Tab 1: Link History
 const isLoadingLinks = ref(true)
-const isLoadingMore = ref(false)
+const isLoadingMoreLinks = ref(false)
 const linkHistory = ref([])
-const page = ref(1)
-const limit = 10
+const linkPage = ref(1)
+const linkLimit = 10
 const totalLinks = ref(0)
+
+// State Tab 2: Usage History
+const isLoadingUsage = ref(true)
+const isLoadingMoreUsage = ref(false)
+const usageHistory = ref([])
+const usagePage = ref(1)
+const usageLimit = 10
+const totalUsage = ref(0)
 
 const targetOrders = ref(10)
 const totalOrders = computed(() => Number(props.progressQuantity || 0))
@@ -196,38 +222,9 @@ const hasMoreLinks = computed(() => {
   return linkHistory.value.length < totalLinks.value
 })
 
-const usageHistory = ref([
-  {
-    id: 'usg-1',
-    type: 'ORDER',
-    title: 'Order Layanan Open Trip Gede Pangrango',
-    description: 'Pesanan oleh Budi Santoso (Kode: #ORD-9821) melalui link afiliasimu.',
-    status: 'COMPLETED',
-    statusLabel: 'Berhasil',
-    orderCount: 1,
-    date: '14 Nov 2026, 15:30'
-  },
-  {
-    id: 'usg-2',
-    type: 'REDEEM',
-    title: 'Redeem Voucher Diskon Trip 100%',
-    description: 'Penukaran reward dari pencapaian target 5 order afiliasi.',
-    status: 'REDEEMED',
-    statusLabel: 'Diklaim',
-    orderCount: 5,
-    date: '13 Nov 2026, 09:12'
-  },
-  {
-    id: 'usg-3',
-    type: 'ORDER',
-    title: 'Order Layanan Open Trip Ciremai',
-    description: 'Pesanan oleh Siti Aminah (Kode: #ORD-9754) melalui link afiliasimu.',
-    status: 'PENDING',
-    statusLabel: 'Menunggu Trip',
-    orderCount: 1,
-    date: '12 Nov 2026, 19:45'
-  }
-])
+const hasMoreUsage = computed(() => {
+  return usageHistory.value.length < totalUsage.value
+})
 
 const getShareUrl = (item) => {
   if (item.url) return item.url
@@ -245,11 +242,41 @@ const formatServiceType = (type) => {
 const formatDate = (dateStr) => {
   if (!dateStr) return ''
   const date = new Date(dateStr)
+  if (Number.isNaN(date.getTime())) return dateStr
   return date.toLocaleDateString('id-ID', {
     day: '2-digit',
     month: 'short',
     year: 'numeric'
   })
+}
+
+const formatDateTime = (dateStr) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  if (Number.isNaN(date.getTime())) return dateStr
+  const datePart = date.toLocaleDateString('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  })
+  const timePart = date.toLocaleTimeString('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+  return `${datePart}, ${timePart}`
+}
+
+const normalizeUsageItem = (item) => {
+  return {
+    id: item.id || item.uuid,
+    type: (item.type || 'ORDER').toUpperCase(),
+    title: item.title || '',
+    description: item.description || '',
+    status: (item.status || '').toUpperCase(),
+    statusLabel: item.statusLabel || item.status_label || '',
+    orderCount: Number(item.orderCount ?? item.order_count ?? item.quantity ?? 1),
+    date: item.date || item.createdAt || item.created_at || ''
+  }
 }
 
 const fetchLinkHistory = async (isLoadMore = false) => {
@@ -259,7 +286,7 @@ const fetchLinkHistory = async (isLoadMore = false) => {
   }
 
   if (isLoadMore) {
-    isLoadingMore.value = true
+    isLoadingMoreLinks.value = true
   } else {
     isLoadingLinks.value = true
   }
@@ -272,8 +299,8 @@ const fetchLinkHistory = async (isLoadMore = false) => {
         'Accept': 'application/json'
       },
       query: {
-        page: page.value,
-        limit
+        page: linkPage.value,
+        limit: linkLimit
       }
     })
 
@@ -302,17 +329,79 @@ const fetchLinkHistory = async (isLoadMore = false) => {
     console.error('Gagal mengambil riwayat link:', error)
   } finally {
     isLoadingLinks.value = false
-    isLoadingMore.value = false
+    isLoadingMoreLinks.value = false
+  }
+}
+
+const fetchUsageHistory = async (isLoadMore = false) => {
+  if (!authCookie.value) {
+    isLoadingUsage.value = false
+    return
+  }
+
+  if (isLoadMore) {
+    isLoadingMoreUsage.value = true
+  } else {
+    isLoadingUsage.value = true
+  }
+
+  try {
+    const response = await $fetch(`${config.public.apiBaseUrl}/affiliate/usage-history`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${authCookie.value}`,
+        'Accept': 'application/json'
+      },
+      query: {
+        page: usagePage.value,
+        limit: usageLimit
+      }
+    })
+
+    const rawRows = Array.isArray(response?.data)
+      ? response.data
+      : Array.isArray(response?.data?.items)
+        ? response.data.items
+        : Array.isArray(response)
+          ? response
+          : []
+
+    const mappedRows = rawRows.map(normalizeUsageItem)
+
+    if (isLoadMore) {
+      usageHistory.value.push(...mappedRows)
+    } else {
+      usageHistory.value = mappedRows
+    }
+
+    if (rawRows.length > 0 && rawRows[0].total_data !== undefined) {
+      totalUsage.value = Number(rawRows[0].total_data)
+    } else if (response?.meta?.total !== undefined) {
+      totalUsage.value = Number(response.meta.total)
+    } else {
+      totalUsage.value = usageHistory.value.length
+    }
+  } catch (error) {
+    console.error('Gagal mengambil riwayat penggunaan:', error)
+  } finally {
+    isLoadingUsage.value = false
+    isLoadingMoreUsage.value = false
   }
 }
 
 const loadMoreLinks = () => {
-  page.value += 1
+  linkPage.value += 1
   fetchLinkHistory(true)
+}
+
+const loadMoreUsage = () => {
+  usagePage.value += 1
+  fetchUsageHistory(true)
 }
 
 onMounted(() => {
   fetchLinkHistory()
+  fetchUsageHistory()
 })
 
 const copyLink = async (item) => {
@@ -330,9 +419,26 @@ const copyLink = async (item) => {
   }
 }
 
+const getDefaultStatusLabel = (status) => {
+  switch (status) {
+    case 'COMPLETED':
+    case 'PAID':
+    case 'CONFIRMED':
+      return 'Berhasil'
+    case 'REDEEMED':
+      return 'Diklaim'
+    case 'PENDING':
+      return 'Menunggu Trip'
+    default:
+      return status || '-'
+  }
+}
+
 const getStatusBadge = (status) => {
   switch (status) {
     case 'COMPLETED':
+    case 'PAID':
+    case 'CONFIRMED':
       return 'bg-green-50 text-[#145C34]'
     case 'REDEEMED':
       return 'bg-orange-50 text-[#F58220]'
